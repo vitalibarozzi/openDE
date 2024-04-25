@@ -1,0 +1,41 @@
+module Physics.ODE.World
+    ( create
+    , destroyWorld
+    , setGravity
+    , getGravity
+    , closeODE
+    , step
+    , quickStep
+    , setContactSurfaceLayer
+    , getContactSurfaceLayer
+    ) where
+
+import Foreign
+
+import Physics.ODE.Types
+import Physics.ODE.Utilities
+
+#ifdef HASTH
+import Foreign.HacanonLight.DIS
+import Foreign.HacanonLight.Generate
+import Physics.ODE.DIS
+#endif
+
+$(bind "create" "dWorldCreate" [world])
+
+$(bind "destroyWorld" "dWorldDestroy" [world,unit])
+
+$(bind "setGravity" "dWorldSetGravity" [world,ode,ode,ode,unit])
+
+$(bind "getGravity" "dWorldGetGravity" [world,vector3Out,unit])
+
+foreign import ccall unsafe "dCloseODE" closeODE :: IO ()
+
+$(bind "step" "dWorldStep" [world,ode,unit])
+
+$(bind "quickStep" "dWorldQuickStep" [world,ode,unit])
+
+$(bind "setContactSurfaceLayer" "dWorldSetContactSurfaceLayer" [world,ode,unit])
+
+$(bind "getContactSurfaceLayer" "dWorldGetContactSurfaceLayer" [world,ode])
+

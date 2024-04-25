@@ -1,0 +1,157 @@
+module Physics.ODE.Body
+    ( create
+    , destroyBody
+    , setBodyPosition
+    , getBodyPosition
+    , setBodyQuaternion
+    , getBodyQuaternion
+    , setBodyRotation
+    , getBodyRotation
+    , setLinearVel
+    , getLinearVel
+    , setAngularVel
+    , getAngularVel
+    , setMass
+    , getMass
+    , addForce
+    , setForce
+    , getForce
+    , addTorque
+    , setTorque
+    , getTorque
+    , enableBody
+    , disableBody
+    , isBodyEnabled
+    , setRawBodyData
+    , setBodyData
+    , setSafeBodyData
+    , getRawBodyData
+    , getBodyData
+    , tryGetSafeBodyData
+    , getSafeBodyData
+    , setFiniteRotationMode
+    , getFiniteRotationMode
+    , getNumJoints
+    , getJoint
+    , setGravityMode
+    , getGravityMode
+    ) where
+
+
+import Foreign
+import Data.Typeable
+import Data.Maybe
+
+import qualified Physics.ODE.Mass as Mass ( create )
+import Physics.ODE.Types
+import Physics.ODE.Utilities
+
+#ifdef HASTH
+import Foreign.HacanonLight.DIS
+import Foreign.HacanonLight.Generate
+import Physics.ODE.DIS
+#endif
+
+$(bind "create" "dBodyCreate" [world,body])
+
+$(bind "destroyBody" "dBodyDestroy" [body,unit])
+
+$(bind "setBodyPosition" "dBodySetPosition" [body,ode,ode,ode,unit])
+
+$(bind "getBodyPosition" "dBodyGetPosition" [body,vector3Out])
+
+$(bind "setBodyQuaternion" "dBodySetQuaternion" [body,vector4,unit])
+
+$(bind "getBodyQuaternion" "dBodyGetQuaternion" [body,vector4Out])
+
+$(bind "setBodyRotation" "dBodySetRotation" [body,matrix3,unit])
+
+$(bind "getBodyRotation" "dBodyGetRotation" [body,matrix3])
+
+$(bind "setLinearVel" "dBodySetLinearVel" [body,ode,ode,ode,unit])
+
+$(bind "getLinearVel" "dBodyGetLinearVel" [body,vector3Out])
+
+$(bind "setAngularVel" "dBodySetAngularVel" [body,ode,ode,ode,unit])
+
+$(bind "getAngularVel" "dBodyGetAngularVel" [body,vector3Out])
+
+$(bind "setMass" "dBodySetMass" [body,mass,unit])
+
+
+foreign import ccall unsafe "dBodyGetMass" cGetMass :: Ptr BodyStruct -> Ptr MassStruct -> IO ()
+getMass :: Body -> IO Mass
+getMass body
+    = Mass.create >>= \mass ->
+      withForeignPtr mass $ \cMass ->
+      cGetMass body cMass >> return mass
+
+$(bind "addForce" "dBodyAddForce" [body,ode,ode,ode,unit])
+
+$(bind "setForce" "dBodySetForce" [body,ode,ode,ode,unit])
+
+$(bind "getForce" "dBodyGetForce" [body,vector3Out])
+
+$(bind "addTorque" "dBodyAddTorque" [body,ode,ode,ode,unit])
+
+$(bind "setTorque" "dBodySetTorque" [body,ode,ode,ode,unit])
+
+$(bind "getTorque" "dBodyGetTorque" [body,vector3Out])
+
+$(bind "enableBody" "dBodyEnable" [body,unit])
+
+$(bind "disableBody" "dBodyDisable" [body,unit])
+
+$(bind "isBodyEnabled" "dBodyIsEnabled" [body,bool])
+
+foreign import ccall unsafe "dBodySetData" setRawBodyData :: Ptr BodyStruct -> Ptr a -> IO ()
+
+setBodyData :: Body -> a -> IO ()
+setBodyData body d = newStablePtr d >>= \stablePtr ->
+                 setRawBodyData body (castStablePtrToPtr stablePtr)
+
+setSafeBodyData :: Typeable a => Body -> a -> IO ()
+setSafeBodyData body d = setBodyData body (typeOf d,d)
+
+foreign import ccall unsafe "dBodyGetData" getRawBodyData :: Ptr BodyStruct -> IO (Ptr a)
+
+getBodyData :: Body -> IO a
+getBodyData body = getRawBodyData body >>= deRefStablePtr.castPtrToStablePtr
+
+tryGetSafeBodyData :: Typeable a => Body -> IO (Maybe a)
+tryGetSafeBodyData body = getBodyData body >>= \(t,d) ->
+                      if t == typeOf d
+                         then return (Just d)
+                         else return Nothing
+
+getSafeBodyData :: Typeable a => Body -> IO a
+getSafeBodyData = fmap (fromMaybe (error errMsg)).tryGetSafeBodyData
+    where errMsg = "Physics.ODE.Body.getSafeBodyData: invalid type."
+
+$(bind "setFiniteRotationMode_" "dBodySetFiniteRotationMode" [body, int, unit])
+$(bind "getFiniteRotationMode_" "dBodyGetFiniteRotationMode" [body, int])
+
+$(bind "setFiniteRotationAxis_" "dBodySetFiniteRotationAxis" [body, ode, ode, ode, unit])
+$(bind "getFiniteRotationAxis_" "dBodyGetFiniteRotationAxis" [body, vector3Out, unit])
+
+setFiniteRotationMode :: Body -> RotationMode -> IO ()
+setFiniteRotationMode body Infinitesimal = setFiniteRotationMode_ body 0
+setFiniteRotationMode body (Finite x y z) = do setFiniteRotationMode_ body 1
+                                               setFiniteRotationAxis_ body x y z
+
+getFiniteRotationMode :: Body -> IO RotationMode
+getFiniteRotationMode body
+    = do n <- getFiniteRotationMode_ body
+         if n == 0
+            then return Infinitesimal
+            else do (x,y,z) <- getFiniteRotationAxis_ body
+                    return $ Finite x y z
+
+$(bind "getNumJoints" "dBodyGetNumJoints" [body,int])
+
+$(bind "getJoint" "dBodyGetJoint" [body,int,joint])
+
+$(bind "setGravityMode" "dBodySetGravityMode" [body,bool,unit])
+
+$(bind "getGravityMode" "dBodyGetGravityMode" [body,bool])
+

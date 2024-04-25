@@ -1,0 +1,65 @@
+module Physics.ODE.Mass
+    ( create
+    , destroyMass
+    , mass
+    , setZero
+    , adjust
+    ) where
+
+import Foreign
+
+import Physics.ODE.Types
+import Physics.ODE.Utilities
+import Physics.ODE.Hsc
+
+#ifdef HASTH
+import Foreign.HacanonLight.DIS
+import Foreign.HacanonLight.Generate
+import Physics.ODE.DIS
+#endif
+
+create :: IO Mass
+create = mallocForeignPtrBytes sizeOfMass
+
+destroyMass :: Mass -> IO ()
+destroyMass = forceFinalization
+
+mass :: Mass -> IO ODEreal
+mass m
+    = withForeignPtr m peekMass
+
+-- void dMassSetZero (dMass *);
+$(bind "setZero" "dMassSetZero" [mass,unit])
+
+
+-- void dMassSetParameters (dMass *, dReal themass,
+--                          dReal cgx, dReal cgy, dReal cgz,
+--                          dReal I11, dReal I22, dReal I33,
+--                          dReal I12, dReal I13, dReal I23);
+
+-- void dMassSetSphere (dMass *, dReal density, dReal radius);
+-- void dMassSetSphereTotal (dMass *, dReal total_mass, dReal radius);
+
+-- void dMassSetCappedCylinder (dMass *, dReal density, int direction,
+--                              dReal radius, dReal length);
+-- void dMassSetCappedCylinderTotal (dMass *, dReal total_mass, int direction,
+--                                   dReal radius, dReal length);
+
+-- void dMassSetCylinder (dMass *, dReal density, int direction,
+--                        dReal radius, dReal length);
+-- void dMassSetCylinderTotal (dMass *, dReal total_mass, int direction,
+--                             dReal radius, dReal length);
+
+-- void dMassSetBox (dMass *, dReal density,
+--                   dReal lx, dReal ly, dReal lz);
+-- void dMassSetBoxTotal (dMass *, dReal total_mass,
+--                        dReal lx, dReal ly, dReal lz);
+
+-- void dMassAdjust (dMass *, dReal newmass);
+$(bind "adjust" "dMassAdjust" [mass,ode,unit])
+
+-- void dMassTranslate (dMass *, dReal x, dReal y, dReal z);
+
+-- void dMassRotate (dMass *, const dMatrix3 R);
+
+-- void dMassAdd (dMass *a, const dMass *b);

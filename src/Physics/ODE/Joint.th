@@ -1,0 +1,104 @@
+module Physics.ODE.Joint
+    ( createBall
+    , createHinge
+    , createSlider
+    , createContact
+    , createGroup
+    , destroyJoint
+    , destroyGroup
+    , emptyGroup
+    , attach
+    , setRawJointData
+    , setJointData
+    , setSafeJointData
+    , getRawJointData
+    , getJointData
+    , getSafeJointData
+    , tryGetSafeJointData
+    , getType
+    , getBody
+    , areConnected
+    , areConnectedExcluding
+    , setBallAnchor
+    , getBallAnchor
+    , setHingeAnchor
+    , setHingeAxis
+    ) where
+
+import Foreign
+import Data.Typeable
+import Data.Maybe
+
+-- import qualified Physics.ODE.Mass as Mass ( create )
+import Physics.ODE.Types
+import Physics.ODE.Utilities
+import Physics.ODE.Hsc
+
+#ifdef HASTH
+import Foreign.HacanonLight.DIS
+import Foreign.HacanonLight.Generate
+import Physics.ODE.DIS
+#endif
+
+$(bind "createBall" "dJointCreateBall" [world,maybePtr jointGroup,joint])
+$(bind "createHinge" "dJointCreateHinge" [world,maybePtr jointGroup,joint])
+$(bind "createSlider" "dJointCreateSlider" [world,maybePtr jointGroup,joint])
+$(bind "createContact" "dJointCreateContact" [world,maybePtr jointGroup,contact,joint])
+
+$(bind "createGroup'" "dJointGroupCreate" [int,jointGroup])
+
+createGroup :: IO JointGroup
+createGroup = createGroup' 0
+
+$(bind "destroyJoint" "dJointDestroy" [joint,unit])
+
+$(bind "destroyGroup" "dJointGroupDestroy" [jointGroup,unit])
+
+$(bind "emptyGroup" "dJointGroupEmpty" [jointGroup,unit])
+
+$(bind "attach" "dJointAttach" [joint,maybePtr body,maybePtr body,unit])
+
+foreign import ccall unsafe "dJointSetData" setRawJointData :: Ptr JointStruct -> Ptr a -> IO ()
+
+setJointData :: Joint -> a -> IO ()
+setJointData body d = newStablePtr d >>= \stablePtr ->
+                 setRawJointData body (castStablePtrToPtr stablePtr)
+
+setSafeJointData :: Typeable a => Joint -> a -> IO ()
+setSafeJointData body d = setJointData body (typeOf d,d)
+
+foreign import ccall unsafe "dJointGetData" getRawJointData :: Ptr JointStruct -> IO (Ptr a)
+
+getJointData :: Joint -> IO a
+getJointData body = getRawJointData body >>= deRefStablePtr.castPtrToStablePtr
+
+tryGetSafeJointData :: Typeable a => Joint -> IO (Maybe a)
+tryGetSafeJointData body = getJointData body >>= \(t,d) ->
+                      if t == typeOf d
+                         then return (Just d)
+                         else return Nothing
+
+getSafeJointData :: Typeable a => Joint -> IO a
+getSafeJointData = fmap (fromMaybe (error errMsg)).tryGetSafeJointData
+    where errMsg = "Physics.ODE.Joint.getSafeJointData: invalid type."
+
+$(bind "getType" "dJointGetType" [joint,jointType])
+
+$(bind "getBody" "dJointGetBody" [joint,bodyIndex,body])
+
+$(bind "areConnected" "dAreConnected" [body,body,bool])
+
+$(bind "areConnectedExcluding" "dAreConnectedExcluding" [body,body,jointType,bool])
+
+$(bind "setBallAnchor" "dJointSetBallAnchor" [joint,ode,ode,ode,unit])
+
+$(bind "getBallAnchor" "dJointGetBallAnchor" [joint,vector3Out,unit])
+
+---------------------------------------------
+-- Hinge joint
+
+$(bind "setHingeAnchor" "dJointSetHingeAnchor" [joint,ode,ode,ode,unit])
+
+$(bind "setHingeAxis" "dJointSetHingeAxis" [joint,ode,ode,ode,unit])
+
+
