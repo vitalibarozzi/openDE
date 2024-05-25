@@ -1,12 +1,10 @@
-{-# LINE 1 "src/Physics/ODE/Types.hsc" #-}
 {-# LANGUAGE EmptyDataDecls #-}
 
 module Physics.ODE.Types where
 
 import Foreign
 
-type ODEreal = Double
-{-# LINE 8 "src/Physics/ODE/Types.hsc" #-}
+type ODEreal = Float
 
 type Matrix3 = Ptr ODEreal
 type Quaternion = (ODEreal, ODEreal, ODEreal, ODEreal)

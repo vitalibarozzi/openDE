@@ -1,8 +1,8 @@
 module Physics.ODE.Overloading where
 
-import Physics.ODE.Types
 import Data.Typeable
 import Foreign
+import Physics.ODE.Types
 
 class HasDestroy a where
     destroy :: a -> IO ()
@@ -18,11 +18,11 @@ class IsPlaceable a where
 class HasData a where
     setRawData :: a -> Ptr b -> IO ()
     setData :: a -> b -> IO ()
-    setSafeData :: Typeable b => a -> b -> IO ()
+    setSafeData :: (Typeable b) => a -> b -> IO ()
     getRawData :: a -> IO (Ptr b)
     getData :: a -> IO b
-    getSafeData :: Typeable b => a -> IO b
-    tryGetSafeData :: Typeable b => a -> IO (Maybe b)
+    getSafeData :: (Typeable b) => a -> IO b
+    tryGetSafeData :: (Typeable b) => a -> IO (Maybe b)
 
 class HasEnable a where
     enable :: a -> IO ()

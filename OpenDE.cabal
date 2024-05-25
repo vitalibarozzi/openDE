@@ -1,0 +1,65 @@
+cabal-version: 2.2
+
+-- This file has been generated from package.yaml by hpack version 0.36.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           OpenDE
+version:        0.1.0.0
+homepage:       https://github.com/githubuser/OpenDE#readme
+bug-reports:    https://github.com/githubuser/OpenDE/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2024 Author name here
+license:        BSD-3-Clause
+build-type:     Simple
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/OpenDE
+
+library
+  exposed-modules:
+      Physics.ODE.Body
+      Physics.ODE.Collision
+      Physics.ODE.Geom
+      Physics.ODE.Hsc
+      Physics.ODE.Joint
+      Physics.ODE.Mass
+      Physics.ODE.Objects
+      Physics.ODE.Overloading
+      Physics.ODE.Rotation
+      Physics.ODE.Space
+      Physics.ODE.Types
+      Physics.ODE.Utilities
+      Physics.ODE.World
+  other-modules:
+      Paths_OpenDE
+  autogen-modules:
+      Paths_OpenDE
+  hs-source-dirs:
+      src
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  extra-libraries:
+      ode
+      stdc++
+  build-depends:
+      array
+    , base >=4.7 && <5
+  default-language: Haskell2010
+
+test-suite OpenDE-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_OpenDE
+  autogen-modules:
+      Paths_OpenDE
+  hs-source-dirs:
+      test
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      OpenDE
+    , array
+    , base >=4.7 && <5
+  default-language: Haskell2010

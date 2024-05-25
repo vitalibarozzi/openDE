@@ -6,11 +6,7 @@ import Foreign
 import Data.Array
 
 forceFinalization :: ForeignPtr a -> IO ()
-#ifdef __GLASGOW_HASKELL__
 forceFinalization = finalizeForeignPtr
-#else
-forceFinalization _ = return ()
-#endif
 
 peekVector3 :: Storable a => Ptr a -> IO (a,a,a)
 peekVector3 ptr

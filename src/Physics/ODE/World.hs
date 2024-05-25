@@ -7,7 +7,9 @@ import Physics.ODE.Types
 import Physics.ODE.Utilities
  
 foreign import ccall unsafe "dInitODE2" initODE :: IO ()
+
 foreign import ccall unsafe "dCloseODE" closeODE :: IO ()
+
 create :: IO World
 create = do ret_0 <- createdWorldCreate
             return (ret_0)
