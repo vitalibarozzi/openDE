@@ -1,11 +1,11 @@
-module Physics.ODE.Space
+module Physics.ODE.Raw.Space
        (createSimple, createHash, destroySpace, setLevels, getLevels,
         setCleanup, getCleanup, add, remove, query, getNumGeoms,
         getGeomUnsafe, tryGetGeom, getGeom)
        where
 import Foreign
 import Data.Maybe
-import Physics.ODE.Types
+import Physics.ODE.Raw.Types
  
 tryGetGeom :: Space -> Int -> IO (Maybe Geom)
 tryGetGeom space nth

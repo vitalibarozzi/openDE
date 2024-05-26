@@ -1,56 +1,75 @@
 module Physics.ODE.Body (
-    create,
-    destroyBody,
-    setBodyPosition,
-    getBodyPosition,
+    position,
+    -- %TODO
     setBodyQuaternion,
     getBodyQuaternion,
+    -- %TODO
     setBodyRotation,
     getBodyRotation,
-    setLinearVel,
-    getLinearVel,
-    setAngularVel,
-    getAngularVel,
-    setMass,
-    getMass,
-    addForce,
-    setForce,
-    getForce,
-    addTorque,
-    setTorque,
-    getTorque,
+    -- %TODO
     enableBody,
     disableBody,
-    isBodyEnabled,
-    setRawBodyData,
-    setBodyData,
-    setSafeBodyData,
-    getRawBodyData,
-    getBodyData,
-    tryGetSafeBodyData,
-    getSafeBodyData,
-    setFiniteRotationMode,
-    getFiniteRotationMode,
-    getNumJoints,
-    getJoint,
+    -- %TODO
+    setForce,
+    getForce,
+    --
+    setTorque,
+    getTorque,
+    --
+    setLinearVel,
+    getLinearVel,
+    --
+    setAngularVel,
+    getAngularVel,
+    --
+    setMass,
+    getMass,
+    --
     setGravityMode,
     getGravityMode,
+    --
+    addForce,
+    addTorque,
+    --
+    setRawBodyData,
+    getRawBodyData,
+    --
+    setBodyData,
+    getBodyData,
+    --
+    setFiniteRotationMode,
+    getFiniteRotationMode,
+    --
+    setSafeBodyData,
+    getSafeBodyData,
+    --
+
+    create,
+    destroyBody,
+    isBodyEnabled,
+    tryGetSafeBodyData,
+    getNumJoints,
+    getJoint,
 )
 where
 
 import Data.Maybe
+import Data.StateVar
 import Data.Typeable
 import Foreign
-import qualified Physics.ODE.Mass as Mass (create)
-import Physics.ODE.Types
-import Physics.ODE.Utilities
+import Physics.ODE.Raw.Body
+import qualified Physics.ODE.Raw.Mass as Mass (create)
+import Physics.ODE.Raw.Types
+import Physics.ODE.Raw.Utilities
+
 
 -----------------------------------------------------------
-getMass :: Body -> IO Mass
-getMass body =
-    Mass.create
-        >>= \mass ->
-            withForeignPtr mass $ \cMass -> cGetMass body cMass >> return mass
+position :: Body -> StateVar (ODEreal, ODEreal, ODEreal)
+position body =
+    StateVar
+        (peekVector3 =<< getBodyPositiondBodyGetPosition body)
+        (\(x, y, z) -> setBodyPositiondBodySetPosition body x y z)
+
 
 -----------------------------------------------------------
 
@@ -106,50 +125,11 @@ getFiniteRotationMode body =
 
 -----------------------------------------------------------
 create :: World -> IO Body
-create = \arg_0 ->
-    (\action_1 -> action_1 arg_0)
-        ( \marshaledArg_2 -> do
-            ret_3 <- createdBodyCreate marshaledArg_2
-            return (ret_3)
-        )
+create = createdBodyCreate
 
 -----------------------------------------------------------
 destroyBody :: Body -> IO ()
-destroyBody = \arg_0 ->
-    (\action_1 -> action_1 arg_0)
-        ( \marshaledArg_2 -> do
-            ret_3 <- destroyBodydBodyDestroy marshaledArg_2
-            case () of
-                () -> do return ()
-        )
-
------------------------------------------------------------
-setBodyPosition :: Body -> ODEreal -> ODEreal -> ODEreal -> IO ()
-setBodyPosition = \arg_0 arg_1 arg_2 arg_3 ->
-    (\action_4 -> action_4 arg_0)
-        ( \marshaledArg_5 ->
-            (\action_6 -> action_6 arg_1)
-                ( \marshaledArg_7 ->
-                    (\action_8 -> action_8 arg_2)
-                        ( \marshaledArg_9 ->
-                            (\action_10 -> action_10 arg_3)
-                                ( \marshaledArg_11 -> do
-                                    ret_12 <- setBodyPositiondBodySetPosition marshaledArg_5 marshaledArg_7 marshaledArg_9 marshaledArg_11
-                                    case () of
-                                        () -> do return ()
-                                )
-                        )
-                )
-        )
-
------------------------------------------------------------
-getBodyPosition :: Body -> IO ((ODEreal, ODEreal, ODEreal))
-getBodyPosition = \arg_0 ->
-    (\action_1 -> action_1 arg_0)
-        ( \marshaledArg_2 -> do
-            ret_3 <- getBodyPositiondBodyGetPosition marshaledArg_2
-            peekVector3 (ret_3)
-        )
+destroyBody = destroyBodydBodyDestroy
 
 -----------------------------------------------------------
 setBodyQuaternion ::
@@ -291,6 +271,13 @@ setMass = \arg_0 arg_1 ->
                         () -> do return ()
                 )
         )
+
+-----------------------------------------------------------
+getMass :: Body -> IO Mass
+getMass body =
+    Mass.create
+        >>= \mass ->
+            withForeignPtr mass $ \cMass -> cGetMass body cMass >> return mass
 
 -----------------------------------------------------------
 addForce :: Body -> ODEreal -> ODEreal -> ODEreal -> IO ()
@@ -453,7 +440,7 @@ setFiniteRotationAxis_ = \arg_0 arg_1 arg_2 arg_3 ->
                         ( \marshaledArg_9 ->
                             (\action_10 -> action_10 arg_3)
                                 ( \marshaledArg_11 -> do
-                                    ret_12 <- setFiniteRotationAxis_dBodySetFiniteRotationAxis marshaledArg_5 marshaledArg_7 marshaledArg_9 marshaledArg_11
+                                    ret_12 <- dBodySetFiniteRotationAxis marshaledArg_5 marshaledArg_7 marshaledArg_9 marshaledArg_11
                                     case () of
                                         () -> do return ()
                                 )
@@ -469,7 +456,7 @@ getFiniteRotationAxis_ = \arg_0 ->
             allocaArray
                 4
                 ( \marshaledArg_3 -> do
-                    ret_4 <- getFiniteRotationAxis_dBodyGetFiniteRotationAxis marshaledArg_2 marshaledArg_3
+                    ret_4 <- dBodyGetFiniteRotationAxis marshaledArg_2 marshaledArg_3
                     peekVector3 (marshaledArg_3)
                 )
         )
@@ -479,7 +466,7 @@ getNumJoints :: Body -> IO Int
 getNumJoints = \arg_0 ->
     (\action_1 -> action_1 arg_0)
         ( \marshaledArg_2 -> do
-            ret_3 <- getNumJointsdBodyGetNumJoints marshaledArg_2
+            ret_3 <- dBodyGetNumJoints marshaledArg_2
             return (ret_3)
         )
 
@@ -516,217 +503,3 @@ getGravityMode = \arg_0 ->
             ret_3 <- getGravityModedBodyGetGravityMode marshaledArg_2
             return (toBool (ret_3))
         )
-
------------------------------------------------------------
-foreign import ccall unsafe "dBodyGetJoint"       getJointdBodyGetJoint             :: Body -> Int -> IO Joint
-foreign import ccall unsafe "dBodySetGravityMode" setGravityModedBodySetGravityMode :: Body -> Int -> IO ()
-foreign import ccall unsafe "dBodyGetMass"        cGetMass                          :: Ptr BodyStruct -> Ptr MassStruct -> IO ()
-
-
-foreign import ccall unsafe "dBodyGetGravityMode"
-    getGravityModedBodyGetGravityMode ::
-        Body ->
-        IO Int
-
-
-foreign import ccall unsafe "dBodySetQuaternion"
-    setBodyQuaterniondBodySetQuaternion ::
-        Body ->
-        Ptr ODEreal ->
-        IO ()
-
-
-foreign import ccall unsafe "dBodyCreate"
-    createdBodyCreate ::
-        World ->
-        IO Body
-
-
-
-
-foreign import ccall unsafe "dBodySetData"
-    setRawBodyData ::
-        Ptr BodyStruct -> Ptr a -> IO ()
-
-
-foreign import ccall unsafe "dBodyGetData"
-    getRawBodyData ::
-        Ptr BodyStruct -> IO (Ptr a)
-
-
-foreign import ccall unsafe "dBodyDestroy"
-    destroyBodydBodyDestroy ::
-        Body ->
-        IO ()
-
-
-foreign import ccall unsafe "dBodySetPosition"
-    setBodyPositiondBodySetPosition ::
-        Body ->
-        ODEreal ->
-        ODEreal ->
-        ODEreal ->
-        IO ()
-
-
-foreign import ccall unsafe "dBodyGetPosition"
-    getBodyPositiondBodyGetPosition ::
-        Body ->
-        IO (Ptr ODEreal)
-
-
-foreign import ccall unsafe "dBodyGetQuaternion"
-    getBodyQuaterniondBodyGetQuaternion ::
-        Body ->
-        IO (Ptr ODEreal)
-
-
-foreign import ccall unsafe "dBodySetRotation"
-    setBodyRotationdBodySetRotation ::
-        Body ->
-        Matrix3 ->
-        IO ()
-
-
-foreign import ccall unsafe "dBodyGetRotation"
-    getBodyRotationdBodyGetRotation ::
-        Body ->
-        IO Matrix3
-
-
-foreign import ccall unsafe "dBodySetLinearVel"
-    setLinearVeldBodySetLinearVel ::
-        Body ->
-        ODEreal ->
-        ODEreal ->
-        ODEreal ->
-        IO ()
-
-
-foreign import ccall unsafe "dBodyGetLinearVel"
-    getLinearVeldBodyGetLinearVel ::
-        Body ->
-        IO (Ptr ODEreal)
-
-
-foreign import ccall unsafe "dBodySetAngularVel"
-    setAngularVeldBodySetAngularVel ::
-        Body ->
-        ODEreal ->
-        ODEreal ->
-        ODEreal ->
-        IO ()
-
-
-foreign import ccall unsafe "dBodyGetAngularVel"
-    getAngularVeldBodyGetAngularVel ::
-        Body ->
-        IO (Ptr ODEreal)
-
-
-foreign import ccall unsafe "dBodySetMass"
-    setMassdBodySetMass ::
-        Body ->
-        Ptr MassStruct ->
-        IO ()
-
-
-foreign import ccall unsafe "dBodyAddForce"
-    addForcedBodyAddForce ::
-        Body ->
-        ODEreal ->
-        ODEreal ->
-        ODEreal ->
-        IO ()
-
-
-foreign import ccall unsafe "dBodySetForce"
-    setForcedBodySetForce ::
-        Body ->
-        ODEreal ->
-        ODEreal ->
-        ODEreal ->
-        IO ()
-
-
-foreign import ccall unsafe "dBodyGetForce"
-    getForcedBodyGetForce ::
-        Body ->
-        IO (Ptr ODEreal)
-
-
-foreign import ccall unsafe "dBodyAddTorque"
-    addTorquedBodyAddTorque ::
-        Body ->
-        ODEreal ->
-        ODEreal ->
-        ODEreal ->
-        IO ()
-
-
-foreign import ccall unsafe "dBodySetTorque"
-    setTorquedBodySetTorque ::
-        Body ->
-        ODEreal ->
-        ODEreal ->
-        ODEreal ->
-        IO ()
-
-
-foreign import ccall unsafe "dBodyGetTorque"
-    getTorquedBodyGetTorque ::
-        Body ->
-        IO (Ptr ODEreal)
-
-
-foreign import ccall unsafe "dBodyEnable"
-    enableBodydBodyEnable ::
-        Body ->
-        IO ()
-
-
-foreign import ccall unsafe "dBodyDisable"
-    disableBodydBodyDisable ::
-        Body ->
-        IO ()
-
-
-foreign import ccall unsafe "dBodyIsEnabled"
-    isBodyEnableddBodyIsEnabled ::
-        Body ->
-        IO Int
-
-
-foreign import ccall unsafe "dBodySetFiniteRotationMode"
-    setFiniteRotationMode_dBodySetFiniteRotationMode ::
-        Body ->
-        Int ->
-        IO ()
-
-
-foreign import ccall unsafe "dBodyGetFiniteRotationMode"
-    getFiniteRotationMode_dBodyGetFiniteRotationMode ::
-        Body ->
-        IO Int
-
-
-foreign import ccall unsafe "dBodySetFiniteRotationAxis"
-    setFiniteRotationAxis_dBodySetFiniteRotationAxis ::
-        Body ->
-        ODEreal ->
-        ODEreal ->
-        ODEreal ->
-        IO ()
-
-
-foreign import ccall unsafe "dBodyGetFiniteRotationAxis"
-    getFiniteRotationAxis_dBodyGetFiniteRotationAxis ::
-        Body ->
-        Ptr ODEreal ->
-        IO ()
-
-
-foreign import ccall unsafe "dBodyGetNumJoints"
-    getNumJointsdBodyGetNumJoints ::
-        Body ->
-        IO Int

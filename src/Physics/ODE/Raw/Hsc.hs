@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Physics.ODE.Hsc
+module Physics.ODE.Raw.Hsc
     ( addressOfGeom
     , toBitmask
     , fromBitmask
@@ -18,8 +18,8 @@ module Physics.ODE.Hsc
     , fromGeomClass
     ) where
 
-import Physics.ODE.Types
-import Physics.ODE.Utilities
+import Physics.ODE.Raw.Types
+import Physics.ODE.Raw.Utilities
 import Foreign
 
 import Control.Monad

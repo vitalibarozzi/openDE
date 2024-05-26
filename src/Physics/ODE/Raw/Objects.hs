@@ -1,4 +1,4 @@
-module Physics.ODE.Objects (
+module Physics.ODE.Raw.Objects (
     createSphere,
     sphereSetRadius,
     sphereGetRadius,
@@ -16,8 +16,8 @@ where
 
 import Data.Maybe
 import Foreign
-import Physics.ODE.Types
-import Physics.ODE.Utilities
+import Physics.ODE.Raw.Types
+import Physics.ODE.Raw.Utilities
 
 -- foreign import ccall unsafe "&dGeomDestroy" cDestroy :: FinalizerPtr GeomStruct
 -- -------------------------------------------

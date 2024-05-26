@@ -1,4 +1,4 @@
-module Physics.ODE.Mass (
+module Physics.ODE.Raw.Mass (
     create,
     destroyMass,
     mass,
@@ -7,9 +7,9 @@ module Physics.ODE.Mass (
 ) where
 
 import Foreign
-import Physics.ODE.Hsc
-import Physics.ODE.Types
-import Physics.ODE.Utilities
+import Physics.ODE.Raw.Hsc
+import Physics.ODE.Raw.Types
+import Physics.ODE.Raw.Utilities
 
 create :: IO Mass
 create = mallocForeignPtrBytes sizeOfMass

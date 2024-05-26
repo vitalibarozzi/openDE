@@ -1,5 +1,5 @@
 {-# LANGUAGE ParallelListComp #-}
-module Physics.ODE.Utilities where
+module Physics.ODE.Raw.Utilities where
 
 import Foreign
 

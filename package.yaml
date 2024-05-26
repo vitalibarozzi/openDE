@@ -9,6 +9,8 @@ copyright:           "2024 Author name here"
 dependencies:
 - base >= 4.7 && < 5
 - array
+- StateVar
+- linear
 
 ghc-options:
 - -Wall

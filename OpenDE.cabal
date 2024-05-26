@@ -23,15 +23,18 @@ library
       Physics.ODE.Body
       Physics.ODE.Collision
       Physics.ODE.Geom
-      Physics.ODE.Hsc
-      Physics.ODE.Joint
-      Physics.ODE.Mass
-      Physics.ODE.Objects
-      Physics.ODE.Overloading
-      Physics.ODE.Rotation
-      Physics.ODE.Space
-      Physics.ODE.Types
-      Physics.ODE.Utilities
+      Physics.ODE.Raw.Body
+      Physics.ODE.Raw.Collision
+      Physics.ODE.Raw.Geom
+      Physics.ODE.Raw.Hsc
+      Physics.ODE.Raw.Joint
+      Physics.ODE.Raw.Mass
+      Physics.ODE.Raw.Objects
+      Physics.ODE.Raw.Rotation
+      Physics.ODE.Raw.Space
+      Physics.ODE.Raw.Types
+      Physics.ODE.Raw.Utilities
+      Physics.ODE.Raw.World
       Physics.ODE.World
   other-modules:
       Paths_OpenDE
@@ -44,8 +47,10 @@ library
       ode
       stdc++
   build-depends:
-      array
+      StateVar
+    , array
     , base >=4.7 && <5
+    , linear
   default-language: Haskell2010
 
 test-suite OpenDE-test
@@ -60,6 +65,8 @@ test-suite OpenDE-test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       OpenDE
+    , StateVar
     , array
     , base >=4.7 && <5
+    , linear
   default-language: Haskell2010

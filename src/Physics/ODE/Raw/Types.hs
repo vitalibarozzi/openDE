@@ -1,6 +1,6 @@
 {-# LANGUAGE EmptyDataDecls #-}
 
-module Physics.ODE.Types where
+module Physics.ODE.Raw.Types where
 
 import Foreign
 

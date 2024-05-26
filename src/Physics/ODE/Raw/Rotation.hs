@@ -1,4 +1,4 @@
-module Physics.ODE.Rotation
+module Physics.ODE.Raw.Rotation
     ( createMatrix3
     , setIdentity
     , fromAxisAndAngle
@@ -9,8 +9,8 @@ module Physics.ODE.Rotation
 
 import Foreign
 
-import Physics.ODE.Types
-import Physics.ODE.Hsc
+import Physics.ODE.Raw.Types
+import Physics.ODE.Raw.Hsc
 
 createMatrix3 :: IO Matrix3
 createMatrix3 = do matrix <- mallocBytes sizeOfMatrix3

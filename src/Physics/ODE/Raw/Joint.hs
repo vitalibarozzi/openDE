@@ -1,4 +1,4 @@
-module Physics.ODE.Joint
+module Physics.ODE.Raw.Joint
        (createBall, createHinge, createSlider, createContact, createGroup,
         destroyJoint, destroyGroup, emptyGroup, attach, setRawJointData,
         setJointData, setSafeJointData, getRawJointData, getJointData,
@@ -9,9 +9,9 @@ module Physics.ODE.Joint
 import Foreign
 import Data.Typeable
 import Data.Maybe
-import Physics.ODE.Types
-import Physics.ODE.Utilities
-import Physics.ODE.Hsc
+import Physics.ODE.Raw.Types
+import Physics.ODE.Raw.Utilities
+import Physics.ODE.Raw.Hsc
  
 createGroup :: IO JointGroup
 createGroup = createGroup' 0
