@@ -3,13 +3,9 @@ import Physics.ODE.Body as Body
 import Physics.ODE.Raw.World as World
 import Physics.ODE.World as World
 import Physics.ODE.Raw.Joint as Joint
-import Physics.ODE.Raw.Space as Space
 import Physics.ODE.Raw.Objects as Object
 import Physics.ODE.Geom as Geom
-import Data.Maybe
 import Data.StateVar
-import Control.Monad
-import Linear.V3
 
 
 --foo = 
@@ -34,14 +30,13 @@ main = do
         __ <- Geom.setBody m1 (Just b1)
         __ <- Joint.attach j0 (Just b0) (Just b1)
 
-
-        x <- case Body.position b0 of StateVar get _ -> get
-        y <- case Body.position b1 of StateVar get _ -> get
+        x <- get (Body.position b0)
+        y <- get (Body.position b1)
         print (x,y)
         World.step w 0.1
         Body.position b0 $= (10, 10, 10)
         World.step w 0.1
-        x <- case Body.position b0 of StateVar get _ -> get
-        y <- case Body.position b1 of StateVar get _ -> get
+        x <- get (Body.position b0)
+        y <- get (Body.position b1)
         print (x,y)
         putStrLn "Test suite not yet implemented"

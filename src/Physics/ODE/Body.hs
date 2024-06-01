@@ -1,49 +1,22 @@
 module Physics.ODE.Body (
     position,
+    quaternion,
+    rotation,
+    linearVel,
+    angularVel,
+    mass,
+    force,
+    torque,
+    gravityMode,
+    finiteRotationMode,
+    finiteRotationAxis,
+    bodyEnable,
+    bodyData,
+    rawBodyData,
+    safeBodyData,
     -- %TODO
-    setBodyQuaternion,
-    getBodyQuaternion,
-    -- %TODO
-    setBodyRotation,
-    getBodyRotation,
-    -- %TODO
-    enableBody,
-    disableBody,
-    -- %TODO
-    setForce,
-    getForce,
-    --
-    setTorque,
-    getTorque,
-    --
-    setLinearVel,
-    getLinearVel,
-    --
-    setAngularVel,
-    getAngularVel,
-    --
-    setMass,
-    getMass,
-    --
-    setGravityMode,
-    getGravityMode,
-    --
     addForce,
     addTorque,
-    --
-    setRawBodyData,
-    getRawBodyData,
-    --
-    setBodyData,
-    getBodyData,
-    --
-    setFiniteRotationMode,
-    getFiniteRotationMode,
-    --
-    setSafeBodyData,
-    getSafeBodyData,
-    --
-
     create,
     destroyBody,
     isBodyEnabled,
@@ -62,7 +35,6 @@ import qualified Physics.ODE.Raw.Mass as Mass (create)
 import Physics.ODE.Raw.Types
 import Physics.ODE.Raw.Utilities
 
-
 -----------------------------------------------------------
 position :: Body -> StateVar (ODEreal, ODEreal, ODEreal)
 position body =
@@ -70,195 +42,24 @@ position body =
         (peekVector3 =<< getBodyPositiondBodyGetPosition body)
         (\(x, y, z) -> setBodyPositiondBodySetPosition body x y z)
 
-
 -----------------------------------------------------------
-
-setBodyData :: Body -> a -> IO ()
-setBodyData body d =
-    newStablePtr d
-        >>= \stablePtr -> setRawBodyData body (castStablePtrToPtr stablePtr)
-
------------------------------------------------------------
-setSafeBodyData :: (Typeable a) => Body -> a -> IO ()
-setSafeBodyData body d = setBodyData body (typeOf d, d)
-
------------------------------------------------------------
-
-getBodyData :: Body -> IO a
-getBodyData body =
-    getRawBodyData body >>= deRefStablePtr . castPtrToStablePtr
-
------------------------------------------------------------
-tryGetSafeBodyData :: (Typeable a) => Body -> IO (Maybe a)
-tryGetSafeBodyData body =
-    getBodyData body
-        >>= \(t, d) ->
-            if t == typeOf d then return (Just d) else return Nothing
-
------------------------------------------------------------
-getSafeBodyData :: (Typeable a) => Body -> IO a
-getSafeBodyData =
-    fmap (fromMaybe (error errMsg)) . tryGetSafeBodyData
+quaternion :: Body -> StateVar (ODEreal, ODEreal, ODEreal, ODEreal)
+quaternion body =
+    StateVar get_ set
   where
-    errMsg = "Physics.ODE.Body.getSafeBodyData: invalid type."
+    get_ = peekVector4 =<< getBodyQuaterniondBodyGetQuaternion body
+    set value = allocaArray 4 $ \ptr -> do
+        pokeArray ptr (case value of (a_6, b_7, c_8, d_9) -> [a_6, b_7, c_8, d_9])
+        setBodyQuaterniondBodySetQuaternion body ptr
 
 -----------------------------------------------------------
-
-setFiniteRotationMode :: Body -> RotationMode -> IO ()
-setFiniteRotationMode body (Infinitesimal) =
-    setFiniteRotationMode_ body 0
-setFiniteRotationMode body (Finite x y z) =
-    do
-        setFiniteRotationMode_ body 1
-        setFiniteRotationAxis_ body x y z
-
------------------------------------------------------------
-getFiniteRotationMode :: Body -> IO RotationMode
-getFiniteRotationMode body =
-    do
-        n <- getFiniteRotationMode_ body
-        if n == 0
-            then return Infinitesimal
-            else do
-                (x, y, z) <- getFiniteRotationAxis_ body
-                return $ Finite x y z
-
------------------------------------------------------------
-create :: World -> IO Body
-create = createdBodyCreate
-
------------------------------------------------------------
-destroyBody :: Body -> IO ()
-destroyBody = destroyBodydBodyDestroy
-
------------------------------------------------------------
-setBodyQuaternion ::
-    Body ->
-    (ODEreal, ODEreal, ODEreal, ODEreal) ->
-    IO ()
-setBodyQuaternion = \arg_0 arg_1 ->
-    (\action_2 -> action_2 arg_0)
-        ( \marshaledArg_3 ->
-            ( \action_4 ->
-                allocaArray
-                    4
-                    ( \ptr_5 ->
-                        (>>)
-                            ( pokeArray
-                                ptr_5
-                                ( case arg_1 of
-                                    ( a_6
-                                        , b_7
-                                        , c_8
-                                        , d_9
-                                        ) ->
-                                            [ a_6
-                                            , b_7
-                                            , c_8
-                                            , d_9
-                                            ]
-                                )
-                            )
-                            (action_4 ptr_5)
-                    )
-            )
-                ( \marshaledArg_10 -> do
-                    ret_11 <- setBodyQuaterniondBodySetQuaternion marshaledArg_3 marshaledArg_10
-                    case () of
-                        () -> do return ()
-                )
-        )
-
------------------------------------------------------------
-getBodyQuaternion ::
-    Body ->
-    IO ((ODEreal, ODEreal, ODEreal, ODEreal))
-getBodyQuaternion = \arg_0 ->
-    (\action_1 -> action_1 arg_0)
-        ( \marshaledArg_2 -> do
-            ret_3 <- getBodyQuaterniondBodyGetQuaternion marshaledArg_2
-            peekVector4 (ret_3)
-        )
-
------------------------------------------------------------
-setBodyRotation :: Body -> Matrix3 -> IO ()
-setBodyRotation = \arg_0 arg_1 ->
-    (\action_2 -> action_2 arg_0)
-        ( \marshaledArg_3 ->
-            (\action_4 -> action_4 arg_1)
-                ( \marshaledArg_5 -> do
-                    ret_6 <- setBodyRotationdBodySetRotation marshaledArg_3 marshaledArg_5
-                    case () of
-                        () -> do return ()
-                )
-        )
-
------------------------------------------------------------
-getBodyRotation :: Body -> IO Matrix3
-getBodyRotation = \arg_0 ->
-    (\action_1 -> action_1 arg_0)
-        ( \marshaledArg_2 -> do
-            ret_3 <- getBodyRotationdBodyGetRotation marshaledArg_2
-            return (ret_3)
-        )
-
------------------------------------------------------------
-setLinearVel :: Body -> ODEreal -> ODEreal -> ODEreal -> IO ()
-setLinearVel = \arg_0 arg_1 arg_2 arg_3 ->
-    (\action_4 -> action_4 arg_0)
-        ( \marshaledArg_5 ->
-            (\action_6 -> action_6 arg_1)
-                ( \marshaledArg_7 ->
-                    (\action_8 -> action_8 arg_2)
-                        ( \marshaledArg_9 ->
-                            (\action_10 -> action_10 arg_3)
-                                ( \marshaledArg_11 -> do
-                                    ret_12 <- setLinearVeldBodySetLinearVel marshaledArg_5 marshaledArg_7 marshaledArg_9 marshaledArg_11
-                                    case () of
-                                        () -> do return ()
-                                )
-                        )
-                )
-        )
-
------------------------------------------------------------
-getLinearVel :: Body -> IO ((ODEreal, ODEreal, ODEreal))
-getLinearVel = \arg_0 ->
-    (\action_1 -> action_1 arg_0)
-        ( \marshaledArg_2 -> do
-            ret_3 <- getLinearVeldBodyGetLinearVel marshaledArg_2
-            peekVector3 (ret_3)
-        )
-
------------------------------------------------------------
-setAngularVel :: Body -> ODEreal -> ODEreal -> ODEreal -> IO ()
-setAngularVel = \arg_0 arg_1 arg_2 arg_3 ->
-    (\action_4 -> action_4 arg_0)
-        ( \marshaledArg_5 ->
-            (\action_6 -> action_6 arg_1)
-                ( \marshaledArg_7 ->
-                    (\action_8 -> action_8 arg_2)
-                        ( \marshaledArg_9 ->
-                            (\action_10 -> action_10 arg_3)
-                                ( \marshaledArg_11 -> do
-                                    ret_12 <- setAngularVeldBodySetAngularVel marshaledArg_5 marshaledArg_7 marshaledArg_9 marshaledArg_11
-                                    case () of
-                                        () -> do return ()
-                                )
-                        )
-                )
-        )
-
------------------------------------------------------------
-getAngularVel :: Body -> IO ((ODEreal, ODEreal, ODEreal))
-getAngularVel = \arg_0 ->
-    (\action_1 -> action_1 arg_0)
-        ( \marshaledArg_2 -> do
-            ret_3 <- getAngularVeldBodyGetAngularVel marshaledArg_2
-            peekVector3 (ret_3)
-        )
-
------------------------------------------------------------
+mass body = do
+    StateVar get_ set
+  where
+    get_ = peekVector4 =<< getBodyQuaterniondBodyGetQuaternion body
+    set value = allocaArray 4 $ \ptr -> do
+        pokeArray ptr (case value of (a_6, b_7, c_8, d_9) -> [a_6, b_7, c_8, d_9])
+        setBodyQuaterniondBodySetQuaternion body ptr
 setMass :: Body -> Mass -> IO ()
 setMass = \arg_0 arg_1 ->
     (\action_2 -> action_2 arg_0)
@@ -271,8 +72,6 @@ setMass = \arg_0 arg_1 ->
                         () -> do return ()
                 )
         )
-
------------------------------------------------------------
 getMass :: Body -> IO Mass
 getMass body =
     Mass.create
@@ -280,25 +79,40 @@ getMass body =
             withForeignPtr mass $ \cMass -> cGetMass body cMass >> return mass
 
 -----------------------------------------------------------
-addForce :: Body -> ODEreal -> ODEreal -> ODEreal -> IO ()
-addForce = \arg_0 arg_1 arg_2 arg_3 ->
-    (\action_4 -> action_4 arg_0)
-        ( \marshaledArg_5 ->
-            (\action_6 -> action_6 arg_1)
-                ( \marshaledArg_7 ->
-                    (\action_8 -> action_8 arg_2)
-                        ( \marshaledArg_9 ->
-                            (\action_10 -> action_10 arg_3)
-                                ( \marshaledArg_11 -> do
-                                    ret_12 <- addForcedBodyAddForce marshaledArg_5 marshaledArg_7 marshaledArg_9 marshaledArg_11
-                                    case () of
-                                        () -> do return ()
-                                )
-                        )
+rotation body = do
+    StateVar get_ set
+  where
+    get_ = peekVector4 =<< getBodyQuaterniondBodyGetQuaternion body
+    set value = allocaArray 4 $ \ptr -> do
+        pokeArray ptr (case value of (a_6, b_7, c_8, d_9) -> [a_6, b_7, c_8, d_9])
+        setBodyQuaterniondBodySetQuaternion body ptr
+setBodyRotation :: Body -> Matrix3 -> IO ()
+setBodyRotation = \arg_0 arg_1 ->
+    (\action_2 -> action_2 arg_0)
+        ( \marshaledArg_3 ->
+            (\action_4 -> action_4 arg_1)
+                ( \marshaledArg_5 -> do
+                    ret_6 <- setBodyRotationdBodySetRotation marshaledArg_3 marshaledArg_5
+                    case () of
+                        () -> do return ()
                 )
+        )
+getBodyRotation :: Body -> IO Matrix3
+getBodyRotation = \arg_0 ->
+    (\action_1 -> action_1 arg_0)
+        ( \marshaledArg_2 -> do
+            ret_3 <- getBodyRotationdBodyGetRotation marshaledArg_2
+            return (ret_3)
         )
 
 -----------------------------------------------------------
+force body = do
+    StateVar get_ set
+  where
+    get_ = peekVector4 =<< getBodyQuaterniondBodyGetQuaternion body
+    set value = allocaArray 4 $ \ptr -> do
+        pokeArray ptr (case value of (a_6, b_7, c_8, d_9) -> [a_6, b_7, c_8, d_9])
+        setBodyQuaterniondBodySetQuaternion body ptr
 setForce :: Body -> ODEreal -> ODEreal -> ODEreal -> IO ()
 setForce = \arg_0 arg_1 arg_2 arg_3 ->
     (\action_4 -> action_4 arg_0)
@@ -316,8 +130,6 @@ setForce = \arg_0 arg_1 arg_2 arg_3 ->
                         )
                 )
         )
-
------------------------------------------------------------
 getForce :: Body -> IO ((ODEreal, ODEreal, ODEreal))
 getForce = \arg_0 ->
     (\action_1 -> action_1 arg_0)
@@ -327,25 +139,13 @@ getForce = \arg_0 ->
         )
 
 -----------------------------------------------------------
-addTorque :: Body -> ODEreal -> ODEreal -> ODEreal -> IO ()
-addTorque = \arg_0 arg_1 arg_2 arg_3 ->
-    (\action_4 -> action_4 arg_0)
-        ( \marshaledArg_5 ->
-            (\action_6 -> action_6 arg_1)
-                ( \marshaledArg_7 ->
-                    (\action_8 -> action_8 arg_2)
-                        ( \marshaledArg_9 ->
-                            (\action_10 -> action_10 arg_3)
-                                ( \marshaledArg_11 -> do
-                                    ret_12 <- addTorquedBodyAddTorque marshaledArg_5 marshaledArg_7 marshaledArg_9 marshaledArg_11
-                                    case () of
-                                        () -> do return ()
-                                )
-                        )
-                )
-        )
-
------------------------------------------------------------
+torque body = do
+    StateVar get_ set
+  where
+    get_ = peekVector4 =<< getBodyQuaterniondBodyGetQuaternion body
+    set value = allocaArray 4 $ \ptr -> do
+        pokeArray ptr (case value of (a_6, b_7, c_8, d_9) -> [a_6, b_7, c_8, d_9])
+        setBodyQuaterniondBodySetQuaternion body ptr
 setTorque :: Body -> ODEreal -> ODEreal -> ODEreal -> IO ()
 setTorque = \arg_0 arg_1 arg_2 arg_3 ->
     (\action_4 -> action_4 arg_0)
@@ -363,8 +163,6 @@ setTorque = \arg_0 arg_1 arg_2 arg_3 ->
                         )
                 )
         )
-
------------------------------------------------------------
 getTorque :: Body -> IO ((ODEreal, ODEreal, ODEreal))
 getTorque = \arg_0 ->
     (\action_1 -> action_1 arg_0)
@@ -374,6 +172,114 @@ getTorque = \arg_0 ->
         )
 
 -----------------------------------------------------------
+gravityMode body = do
+    StateVar get_ set
+  where
+    get_ = peekVector4 =<< getBodyQuaterniondBodyGetQuaternion body
+    set value = allocaArray 4 $ \ptr -> do
+        pokeArray ptr (case value of (a_6, b_7, c_8, d_9) -> [a_6, b_7, c_8, d_9])
+        setBodyQuaterniondBodySetQuaternion body ptr
+setGravityMode :: Body -> Bool -> IO ()
+setGravityMode = \arg_0 arg_1 ->
+    (\action_2 -> action_2 arg_0)
+        ( \marshaledArg_3 ->
+            (\action_4 -> action_4 (fromBool arg_1))
+                ( \marshaledArg_5 -> do
+                    ret_6 <- setGravityModedBodySetGravityMode marshaledArg_3 marshaledArg_5
+                    case () of
+                        () -> do return ()
+                )
+        )
+getGravityMode :: Body -> IO Bool
+getGravityMode = \arg_0 ->
+    (\action_1 -> action_1 arg_0)
+        ( \marshaledArg_2 -> do
+            ret_3 <- getGravityModedBodyGetGravityMode marshaledArg_2
+            return (toBool (ret_3))
+        )
+
+-----------------------------------------------------------
+bodyData :: Body -> StateVar a
+bodyData body = do
+    StateVar get_ set
+  where
+    get_ = getRawBodyData body >>= deRefStablePtr . castPtrToStablePtr
+    set value = newStablePtr value >>= \stablePtr -> setRawBodyData body (castStablePtrToPtr stablePtr)
+
+-----------------------------------------------------------
+linearVel body = do
+    StateVar get_ set
+  where
+    get_ = peekVector4 =<< getBodyQuaterniondBodyGetQuaternion body
+    set value = allocaArray 4 $ \ptr -> do
+        pokeArray ptr (case value of (a_6, b_7, c_8, d_9) -> [a_6, b_7, c_8, d_9])
+        setBodyQuaterniondBodySetQuaternion body ptr
+setLinearVel :: Body -> ODEreal -> ODEreal -> ODEreal -> IO ()
+setLinearVel = \arg_0 arg_1 arg_2 arg_3 ->
+    (\action_4 -> action_4 arg_0)
+        ( \marshaledArg_5 ->
+            (\action_6 -> action_6 arg_1)
+                ( \marshaledArg_7 ->
+                    (\action_8 -> action_8 arg_2)
+                        ( \marshaledArg_9 ->
+                            (\action_10 -> action_10 arg_3)
+                                ( \marshaledArg_11 -> do
+                                    ret_12 <- setLinearVeldBodySetLinearVel marshaledArg_5 marshaledArg_7 marshaledArg_9 marshaledArg_11
+                                    case () of
+                                        () -> do return ()
+                                )
+                        )
+                )
+        )
+getLinearVel :: Body -> IO ((ODEreal, ODEreal, ODEreal))
+getLinearVel = \arg_0 ->
+    (\action_1 -> action_1 arg_0)
+        ( \marshaledArg_2 -> do
+            ret_3 <- getLinearVeldBodyGetLinearVel marshaledArg_2
+            peekVector3 (ret_3)
+        )
+
+-----------------------------------------------------------
+angularVel body = do
+    StateVar get_ set
+  where
+    get_ = peekVector4 =<< getBodyQuaterniondBodyGetQuaternion body
+    set value = allocaArray 4 $ \ptr -> do
+        pokeArray ptr (case value of (a_6, b_7, c_8, d_9) -> [a_6, b_7, c_8, d_9])
+        setBodyQuaterniondBodySetQuaternion body ptr
+setAngularVel :: Body -> ODEreal -> ODEreal -> ODEreal -> IO ()
+setAngularVel = \arg_0 arg_1 arg_2 arg_3 ->
+    (\action_4 -> action_4 arg_0)
+        ( \marshaledArg_5 ->
+            (\action_6 -> action_6 arg_1)
+                ( \marshaledArg_7 ->
+                    (\action_8 -> action_8 arg_2)
+                        ( \marshaledArg_9 ->
+                            (\action_10 -> action_10 arg_3)
+                                ( \marshaledArg_11 -> do
+                                    ret_12 <- setAngularVeldBodySetAngularVel marshaledArg_5 marshaledArg_7 marshaledArg_9 marshaledArg_11
+                                    case () of
+                                        () -> do return ()
+                                )
+                        )
+                )
+        )
+getAngularVel :: Body -> IO ((ODEreal, ODEreal, ODEreal))
+getAngularVel = \arg_0 ->
+    (\action_1 -> action_1 arg_0)
+        ( \marshaledArg_2 -> do
+            ret_3 <- getAngularVeldBodyGetAngularVel marshaledArg_2
+            peekVector3 (ret_3)
+        )
+
+-----------------------------------------------------------
+bodyEnable body = do
+    StateVar get_ set
+  where
+    get_ = peekVector4 =<< getBodyQuaterniondBodyGetQuaternion body
+    set value = allocaArray 4 $ \ptr -> do
+        pokeArray ptr (case value of (a_6, b_7, c_8, d_9) -> [a_6, b_7, c_8, d_9])
+        setBodyQuaterniondBodySetQuaternion body ptr
 enableBody :: Body -> IO ()
 enableBody = \arg_0 ->
     (\action_1 -> action_1 arg_0)
@@ -382,8 +288,6 @@ enableBody = \arg_0 ->
             case () of
                 () -> do return ()
         )
-
------------------------------------------------------------
 disableBody :: Body -> IO ()
 disableBody = \arg_0 ->
     (\action_1 -> action_1 arg_0)
@@ -394,15 +298,32 @@ disableBody = \arg_0 ->
         )
 
 -----------------------------------------------------------
-isBodyEnabled :: Body -> IO Bool
-isBodyEnabled = \arg_0 ->
-    (\action_1 -> action_1 arg_0)
-        ( \marshaledArg_2 -> do
-            ret_3 <- isBodyEnableddBodyIsEnabled marshaledArg_2
-            return (toBool (ret_3))
-        )
+rawBodyData body = do
+    StateVar get_ set
+  where
+    get_ = peekVector4 =<< getBodyQuaterniondBodyGetQuaternion body
+    set value = allocaArray 4 $ \ptr -> do
+        pokeArray ptr (case value of (a_6, b_7, c_8, d_9) -> [a_6, b_7, c_8, d_9])
+        setBodyQuaterniondBodySetQuaternion body ptr
 
 -----------------------------------------------------------
+finiteRotationMode :: Body -> StateVar RotationMode
+finiteRotationMode body = do
+    StateVar get_ set
+  where
+    get_ = do
+        n <- getFiniteRotationMode_ body
+        if n == 0
+            then return Infinitesimal
+            else do
+                (x, y, z) <- getFiniteRotationAxis_ body
+                return $ Finite x y z
+    set value =
+        case value of
+            Infinitesimal -> setFiniteRotationMode_ body 0
+            Finite x y z -> do
+                setFiniteRotationMode_ body 1
+                setFiniteRotationAxis_ body x y z
 setFiniteRotationMode_ :: Body -> Int -> IO ()
 setFiniteRotationMode_ = \arg_0 arg_1 ->
     (\action_2 -> action_2 arg_0)
@@ -414,8 +335,6 @@ setFiniteRotationMode_ = \arg_0 arg_1 ->
                         () -> do return ()
                 )
         )
-
------------------------------------------------------------
 getFiniteRotationMode_ :: Body -> IO Int
 getFiniteRotationMode_ = \arg_0 ->
     (\action_1 -> action_1 arg_0)
@@ -425,6 +344,11 @@ getFiniteRotationMode_ = \arg_0 ->
         )
 
 -----------------------------------------------------------
+finiteRotationAxis =
+    StateVar get_ set
+  where
+    get_ = undefined
+    set value = undefined
 setFiniteRotationAxis_ ::
     Body ->
     ODEreal ->
@@ -447,8 +371,6 @@ setFiniteRotationAxis_ = \arg_0 arg_1 arg_2 arg_3 ->
                         )
                 )
         )
-
------------------------------------------------------------
 getFiniteRotationAxis_ :: Body -> IO ((ODEreal, ODEreal, ODEreal))
 getFiniteRotationAxis_ = \arg_0 ->
     (\action_1 -> action_1 arg_0)
@@ -459,6 +381,77 @@ getFiniteRotationAxis_ = \arg_0 ->
                     ret_4 <- dBodyGetFiniteRotationAxis marshaledArg_2 marshaledArg_3
                     peekVector3 (marshaledArg_3)
                 )
+        )
+
+-----------------------------------------------------------
+safeBodyData body = do
+    StateVar get_ set
+  where
+    get_ = fmap (fromMaybe (error errMsg)) . tryGetSafeBodyData $ body
+    errMsg = "Physics.ODE.Body.getSafeBodyData: invalid type."
+    set value = undefined -- TODO setBodyData body (typeOf value, value)
+    -----------------------------------------------------------
+
+tryGetSafeBodyData :: (Typeable a) => Body -> IO (Maybe a)
+tryGetSafeBodyData body =
+    -- TODO
+    undefined -- getBodyData body
+    -- >>= \(t, d) ->
+    --     if t == typeOf d then return (Just d) else return Nothing
+    -----------------------------------------------------------
+
+create :: World -> IO Body
+create = createdBodyCreate
+
+-----------------------------------------------------------
+destroyBody :: Body -> IO ()
+destroyBody = destroyBodydBodyDestroy
+
+-----------------------------------------------------------
+addForce :: Body -> ODEreal -> ODEreal -> ODEreal -> IO ()
+addForce = \arg_0 arg_1 arg_2 arg_3 ->
+    (\action_4 -> action_4 arg_0)
+        ( \marshaledArg_5 ->
+            (\action_6 -> action_6 arg_1)
+                ( \marshaledArg_7 ->
+                    (\action_8 -> action_8 arg_2)
+                        ( \marshaledArg_9 ->
+                            (\action_10 -> action_10 arg_3)
+                                ( \marshaledArg_11 -> do
+                                    ret_12 <- addForcedBodyAddForce marshaledArg_5 marshaledArg_7 marshaledArg_9 marshaledArg_11
+                                    case () of
+                                        () -> do return ()
+                                )
+                        )
+                )
+        )
+
+-----------------------------------------------------------
+addTorque :: Body -> ODEreal -> ODEreal -> ODEreal -> IO ()
+addTorque = \arg_0 arg_1 arg_2 arg_3 ->
+    (\action_4 -> action_4 arg_0)
+        ( \marshaledArg_5 ->
+            (\action_6 -> action_6 arg_1)
+                ( \marshaledArg_7 ->
+                    (\action_8 -> action_8 arg_2)
+                        ( \marshaledArg_9 ->
+                            (\action_10 -> action_10 arg_3)
+                                ( \marshaledArg_11 -> do
+                                    ret_12 <- addTorquedBodyAddTorque marshaledArg_5 marshaledArg_7 marshaledArg_9 marshaledArg_11
+                                    case () of
+                                        () -> do return ()
+                                )
+                        )
+                )
+        )
+
+-----------------------------------------------------------
+isBodyEnabled :: Body -> IO Bool
+isBodyEnabled = \arg_0 ->
+    (\action_1 -> action_1 arg_0)
+        ( \marshaledArg_2 -> do
+            ret_3 <- isBodyEnableddBodyIsEnabled marshaledArg_2
+            return (toBool (ret_3))
         )
 
 -----------------------------------------------------------
@@ -480,26 +473,4 @@ getJoint = \arg_0 arg_1 ->
                     ret_6 <- getJointdBodyGetJoint marshaledArg_3 marshaledArg_5
                     return (ret_6)
                 )
-        )
-
------------------------------------------------------------
-setGravityMode :: Body -> Bool -> IO ()
-setGravityMode = \arg_0 arg_1 ->
-    (\action_2 -> action_2 arg_0)
-        ( \marshaledArg_3 ->
-            (\action_4 -> action_4 (fromBool arg_1))
-                ( \marshaledArg_5 -> do
-                    ret_6 <- setGravityModedBodySetGravityMode marshaledArg_3 marshaledArg_5
-                    case () of
-                        () -> do return ()
-                )
-        )
-
------------------------------------------------------------
-getGravityMode :: Body -> IO Bool
-getGravityMode = \arg_0 ->
-    (\action_1 -> action_1 arg_0)
-        ( \marshaledArg_2 -> do
-            ret_3 <- getGravityModedBodyGetGravityMode marshaledArg_2
-            return (toBool (ret_3))
         )
