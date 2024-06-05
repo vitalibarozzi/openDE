@@ -9,10 +9,8 @@ import Physics.ODE.Raw.Hsc
 import Physics.ODE.Raw.Types
 
 -----------------------------------------------------------
-type Callback = Geom -> Geom -> IO ()
-
------------------------------------------------------------
 collide :: Geom -> Geom -> Int -> IO [ContactInfo]
+{-# INLINE collide #-}
 collide geom1 geom2 nElems =
     allocaArray nElems $ \points -> do
         ___ <- cMemset points 0 (sizeOfContactInfo * nElems)
@@ -22,8 +20,10 @@ collide geom1 geom2 nElems =
     sizeOfContactInfo = sizeOf (error "bug" :: ContactInfo)
 
 -----------------------------------------------------------
-spaceCollide :: Space -> Callback -> IO ()
+spaceCollide :: Space -> (Geom -> Geom -> IO ()) -> IO ()
+{-# INLINE spaceCollide #-}
 spaceCollide space callback =
     mkRawCallback (const callback) >>= \rawCallback ->
         cSpaceCollide space nullPtr rawCallback
             >> freeHaskellFunPtr rawCallback
+

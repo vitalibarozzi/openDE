@@ -12,16 +12,19 @@ import Foreign
 import Physics.ODE.Raw.Types
 import Physics.ODE.Raw.Hsc
 
+
+
+foreign import ccall unsafe "dRSetIdentity" setIdentity :: Matrix3 -> IO ()
+foreign import ccall unsafe "dRFromAxisAndAngle" fromAxisAndAngle :: Matrix3 -> ODEreal -> ODEreal -> ODEreal -> ODEreal -> IO ()
+foreign import ccall unsafe "dRFromEulerAngles" fromEulerAngles :: Matrix3 -> ODEreal -> ODEreal -> ODEreal -> IO ()
+
+
+
 createMatrix3 :: IO Matrix3
 createMatrix3 = do matrix <- mallocBytes sizeOfMatrix3
                    setIdentity matrix
                    return matrix
 
-foreign import ccall unsafe "dRSetIdentity" setIdentity :: Matrix3 -> IO ()
-foreign import ccall unsafe "dRFromAxisAndAngle" fromAxisAndAngle
-    :: Matrix3 -> ODEreal -> ODEreal -> ODEreal -> ODEreal -> IO ()
-foreign import ccall unsafe "dRFromEulerAngles" fromEulerAngles
-    :: Matrix3 -> ODEreal -> ODEreal -> ODEreal -> IO ()
 
 {-foreign import ccall unsafe "dRtoQ" dRtoQ
     :: Matrix3 -> Ptr ODEreal -> IO ()

@@ -19,6 +19,82 @@ import Foreign
 import Physics.ODE.Raw.Types
 import Physics.ODE.Raw.Utilities
 
+foreign import ccall unsafe "dCreateSphere"
+    createSpheredCreateSphere ::
+        Space ->
+        ODEreal ->
+        IO Geom
+foreign import ccall unsafe "dGeomSphereSetRadius"
+    sphereSetRadiusdGeomSphereSetRadius ::
+        Geom ->
+        ODEreal ->
+        IO ()
+foreign import ccall unsafe "dGeomSphereGetRadius"
+    sphereGetRadiusdGeomSphereGetRadius ::
+        Geom ->
+        IO ODEreal
+foreign import ccall unsafe "dGeomSpherePointDepth"
+    spherePointDepthdGeomSpherePointDepth ::
+        Geom ->
+        ODEreal ->
+        ODEreal ->
+        ODEreal ->
+        IO ODEreal
+foreign import ccall unsafe "dCreateBox"
+    createBoxdCreateBox ::
+        Space ->
+        ODEreal ->
+        ODEreal ->
+        ODEreal ->
+        IO Geom
+foreign import ccall unsafe "dGeomBoxSetLengths"
+    boxSetLengthsdGeomBoxSetLengths ::
+        Geom ->
+        ODEreal ->
+        ODEreal ->
+        ODEreal ->
+        IO ()
+foreign import ccall unsafe "dGeomBoxGetLengths"
+    boxGetLengthsdGeomBoxGetLengths ::
+        Geom ->
+        Ptr ODEreal ->
+        IO ()
+foreign import ccall unsafe "dGeomBoxPointDepth"
+    boxPointDepthdGeomBoxPointDepth ::
+        Geom ->
+        ODEreal ->
+        ODEreal ->
+        ODEreal ->
+        IO ODEreal
+foreign import ccall unsafe "dCreatePlane"
+    createPlanedCreatePlane ::
+        Space ->
+        ODEreal ->
+        ODEreal ->
+        ODEreal ->
+        ODEreal ->
+        IO Geom
+foreign import ccall unsafe "dGeomPlaneSetParams"
+    planeSetParamsdGeomPlaneSetParams ::
+        Geom ->
+        ODEreal ->
+        ODEreal ->
+        ODEreal ->
+        ODEreal ->
+        IO ()
+foreign import ccall unsafe "dGeomPlaneGetParams"
+    planeGetParamsdGeomPlaneGetParams ::
+        Geom ->
+        Ptr ODEreal ->
+        IO ()
+foreign import ccall unsafe "dGeomPlanePointDepth"
+    planePointDepthdGeomPlanePointDepth ::
+        Geom ->
+        ODEreal ->
+        ODEreal ->
+        ODEreal ->
+        IO ODEreal
+
 -- foreign import ccall unsafe "&dGeomDestroy" cDestroy :: FinalizerPtr GeomStruct
 -- -------------------------------------------
 --  Sphere class
@@ -35,11 +111,6 @@ createSphere = \arg_0 arg_1 ->
                     return (ret_8)
                 )
         )
-foreign import ccall unsafe "dCreateSphere"
-    createSpheredCreateSphere ::
-        Space ->
-        ODEreal ->
-        IO Geom
 sphereSetRadius :: Geom -> ODEreal -> IO ()
 sphereSetRadius = \arg_0 arg_1 ->
     (\action_2 -> action_2 arg_0)
@@ -51,11 +122,6 @@ sphereSetRadius = \arg_0 arg_1 ->
                         () -> do return ()
                 )
         )
-foreign import ccall unsafe "dGeomSphereSetRadius"
-    sphereSetRadiusdGeomSphereSetRadius ::
-        Geom ->
-        ODEreal ->
-        IO ()
 sphereGetRadius :: Geom -> IO ODEreal
 sphereGetRadius = \arg_0 ->
     (\action_1 -> action_1 arg_0)
@@ -63,10 +129,6 @@ sphereGetRadius = \arg_0 ->
             ret_3 <- sphereGetRadiusdGeomSphereGetRadius marshaledArg_2
             return (ret_3)
         )
-foreign import ccall unsafe "dGeomSphereGetRadius"
-    sphereGetRadiusdGeomSphereGetRadius ::
-        Geom ->
-        IO ODEreal
 spherePointDepth ::
     Geom ->
     ODEreal ->
@@ -88,13 +150,6 @@ spherePointDepth = \arg_0 arg_1 arg_2 arg_3 ->
                         )
                 )
         )
-foreign import ccall unsafe "dGeomSpherePointDepth"
-    spherePointDepthdGeomSpherePointDepth ::
-        Geom ->
-        ODEreal ->
-        ODEreal ->
-        ODEreal ->
-        IO ODEreal
 
 -- -------------------------------------------
 --  Box class
@@ -122,13 +177,6 @@ createBox = \arg_0 arg_1 arg_2 arg_3 ->
                         )
                 )
         )
-foreign import ccall unsafe "dCreateBox"
-    createBoxdCreateBox ::
-        Space ->
-        ODEreal ->
-        ODEreal ->
-        ODEreal ->
-        IO Geom
 boxSetLengths :: Geom -> ODEreal -> ODEreal -> ODEreal -> IO ()
 boxSetLengths = \arg_0 arg_1 arg_2 arg_3 ->
     (\action_4 -> action_4 arg_0)
@@ -146,13 +194,6 @@ boxSetLengths = \arg_0 arg_1 arg_2 arg_3 ->
                         )
                 )
         )
-foreign import ccall unsafe "dGeomBoxSetLengths"
-    boxSetLengthsdGeomBoxSetLengths ::
-        Geom ->
-        ODEreal ->
-        ODEreal ->
-        ODEreal ->
-        IO ()
 boxGetLengths :: Geom -> IO ((ODEreal, ODEreal, ODEreal))
 boxGetLengths = \arg_0 ->
     (\action_1 -> action_1 arg_0)
@@ -164,11 +205,6 @@ boxGetLengths = \arg_0 ->
                     peekVector3 (marshaledArg_3)
                 )
         )
-foreign import ccall unsafe "dGeomBoxGetLengths"
-    boxGetLengthsdGeomBoxGetLengths ::
-        Geom ->
-        Ptr ODEreal ->
-        IO ()
 boxPointDepth ::
     Geom ->
     ODEreal ->
@@ -190,13 +226,6 @@ boxPointDepth = \arg_0 arg_1 arg_2 arg_3 ->
                         )
                 )
         )
-foreign import ccall unsafe "dGeomBoxPointDepth"
-    boxPointDepthdGeomBoxPointDepth ::
-        Geom ->
-        ODEreal ->
-        ODEreal ->
-        ODEreal ->
-        IO ODEreal
 
 -- -------------------------------------------
 --  Plane class
@@ -228,14 +257,6 @@ createPlane = \arg_0 arg_1 arg_2 arg_3 arg_4 ->
                         )
                 )
         )
-foreign import ccall unsafe "dCreatePlane"
-    createPlanedCreatePlane ::
-        Space ->
-        ODEreal ->
-        ODEreal ->
-        ODEreal ->
-        ODEreal ->
-        IO Geom
 planeSetParams ::
     Geom ->
     ODEreal ->
@@ -262,14 +283,6 @@ planeSetParams = \arg_0 arg_1 arg_2 arg_3 arg_4 ->
                         )
                 )
         )
-foreign import ccall unsafe "dGeomPlaneSetParams"
-    planeSetParamsdGeomPlaneSetParams ::
-        Geom ->
-        ODEreal ->
-        ODEreal ->
-        ODEreal ->
-        ODEreal ->
-        IO ()
 planeGetParams :: Geom -> IO ((ODEreal, ODEreal, ODEreal, ODEreal))
 planeGetParams = \arg_0 ->
     (\action_1 -> action_1 arg_0)
@@ -281,11 +294,6 @@ planeGetParams = \arg_0 ->
                     peekVector4 (marshaledArg_3)
                 )
         )
-foreign import ccall unsafe "dGeomPlaneGetParams"
-    planeGetParamsdGeomPlaneGetParams ::
-        Geom ->
-        Ptr ODEreal ->
-        IO ()
 planePointDepth ::
     Geom ->
     ODEreal ->
@@ -307,12 +315,5 @@ planePointDepth = \arg_0 arg_1 arg_2 arg_3 ->
                         )
                 )
         )
-foreign import ccall unsafe "dGeomPlanePointDepth"
-    planePointDepthdGeomPlanePointDepth ::
-        Geom ->
-        ODEreal ->
-        ODEreal ->
-        ODEreal ->
-        IO ODEreal
 
 --  FIXME: Do the rest.
