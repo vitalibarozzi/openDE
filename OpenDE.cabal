@@ -20,9 +20,11 @@ source-repository head
 
 library
   exposed-modules:
+      Physics.ODE
       Physics.ODE.Body
       Physics.ODE.Collision
       Physics.ODE.Geom
+      Physics.ODE.Objects
       Physics.ODE.Raw.Body
       Physics.ODE.Raw.Collision
       Physics.ODE.Raw.Geom
@@ -35,6 +37,7 @@ library
       Physics.ODE.Raw.Types
       Physics.ODE.Raw.Utilities
       Physics.ODE.Raw.World
+      Physics.ODE.Space
       Physics.ODE.World
   other-modules:
       Paths_OpenDE

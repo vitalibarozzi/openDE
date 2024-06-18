@@ -1,3 +1,4 @@
+-- | High-level bindings using StateVar where possible.
 module Physics.ODE.Body (
     -- * Create / Destroy
     create,
@@ -13,27 +14,20 @@ module Physics.ODE.Body (
     force,
     torque,
     gravityMode,
-    finiteRotationMode,
-    finiteRotationAxis,
     enabled,
     bodyData,
     rawBodyData,
-    safeBodyData,
 
     -- * Utilities
     addForce,
     addTorque,
     isBodyEnabled,
-    tryGetSafeBodyData,
     getNumJoints,
     getJoint,
 )
 where
 
-import Data.Maybe
 import Data.StateVar
-
--- import Data.Typeable
 import Foreign
 import Physics.ODE.Raw.Body
 import qualified Physics.ODE.Raw.Mass as Mass (create)
@@ -43,12 +37,44 @@ import Physics.ODE.Raw.Utilities
 -----------------------------------------------------------
 create :: World -> IO Body
 {-# INLINE create #-}
-create = createdBodyCreate
+create =
+    createdBodyCreate
 
 -----------------------------------------------------------
 destroy :: Body -> IO ()
 {-# INLINE destroy #-}
-destroy = destroyBodydBodyDestroy
+destroy =
+    destroyBodydBodyDestroy
+
+-----------------------------------------------------------
+addForce :: Body -> ODEreal -> ODEreal -> ODEreal -> IO ()
+{-# INLINE addForce #-}
+addForce =
+    addForcedBodyAddForce
+
+-----------------------------------------------------------
+addTorque :: Body -> ODEreal -> ODEreal -> ODEreal -> IO ()
+{-# INLINE addTorque #-}
+addTorque =
+    addTorquedBodyAddTorque
+
+-----------------------------------------------------------
+isBodyEnabled :: Body -> IO Bool
+{-# INLINE isBodyEnabled #-}
+isBodyEnabled body =
+    toBool <$> isBodyEnableddBodyIsEnabled body
+
+-----------------------------------------------------------
+getNumJoints :: Body -> IO Int
+{-# INLINE getNumJoints #-}
+getNumJoints =
+    dBodyGetNumJoints
+
+-----------------------------------------------------------
+getJoint :: Body -> Int -> IO Joint
+{-# INLINE getJoint #-}
+getJoint =
+    getJointdBodyGetJoint
 
 -----------------------------------------------------------
 position :: Body -> StateVar (ODEreal, ODEreal, ODEreal)
@@ -72,7 +98,7 @@ quaternion body =
 -----------------------------------------------------------
 mass :: Body -> StateVar Mass
 {-# INLINE mass #-}
-mass body = do
+mass body =
     StateVar get_ set
   where
     get_ = Mass.create >>= \mass_ -> withForeignPtr mass_ $ \cMass -> cGetMass body cMass >> return mass_
@@ -81,7 +107,7 @@ mass body = do
 -----------------------------------------------------------
 rotation :: Body -> StateVar Matrix3
 {-# INLINE rotation #-}
-rotation body = do
+rotation body =
     StateVar get_ set
   where
     get_ = getBodyRotationdBodyGetRotation body
@@ -90,7 +116,7 @@ rotation body = do
 -----------------------------------------------------------
 force :: Body -> StateVar (ODEreal, ODEreal, ODEreal)
 {-# INLINE force #-}
-force body = do
+force body =
     StateVar get_ set
   where
     get_ = peekVector3 =<< getForcedBodyGetForce body
@@ -99,7 +125,7 @@ force body = do
 -----------------------------------------------------------
 torque :: Ptr BodyStruct -> StateVar (ODEreal, ODEreal, ODEreal)
 {-# INLINE torque #-}
-torque body = do
+torque body =
     StateVar get_ set
   where
     get_ = peekVector3 =<< getTorquedBodyGetTorque body
@@ -108,7 +134,7 @@ torque body = do
 -----------------------------------------------------------
 gravityMode :: Body -> StateVar Bool
 {-# INLINE gravityMode #-}
-gravityMode body = do
+gravityMode body =
     StateVar get_ set_
   where
     get_ = toBool <$> getGravityModedBodyGetGravityMode body
@@ -117,7 +143,7 @@ gravityMode body = do
 -----------------------------------------------------------
 bodyData :: Body -> StateVar a
 {-# INLINE bodyData #-}
-bodyData body = do
+bodyData body =
     StateVar get_ set
   where
     get_ = getRawBodyData body >>= deRefStablePtr . castPtrToStablePtr
@@ -126,7 +152,7 @@ bodyData body = do
 -----------------------------------------------------------
 linearVel :: Body -> StateVar (ODEreal, ODEreal, ODEreal)
 {-# INLINE linearVel #-}
-linearVel body = do
+linearVel body =
     StateVar get_ set_
   where
     get_ = peekVector3 =<< getLinearVeldBodyGetLinearVel body
@@ -135,7 +161,7 @@ linearVel body = do
 -----------------------------------------------------------
 angularVel :: Body -> StateVar (ODEreal, ODEreal, ODEreal)
 {-# INLINE angularVel #-}
-angularVel body = do
+angularVel body =
     StateVar get_ set_
   where
     get_ = peekVector3 =<< getAngularVeldBodyGetAngularVel body
@@ -144,7 +170,7 @@ angularVel body = do
 -----------------------------------------------------------
 enabled :: Body -> StateVar Bool
 {-# INLINE enabled #-}
-enabled body = do
+enabled body =
     StateVar get_ set
   where
     get_ = isBodyEnabled body
@@ -153,7 +179,7 @@ enabled body = do
 -----------------------------------------------------------
 rawBodyData :: Body -> StateVar (ODEreal, ODEreal, ODEreal, ODEreal)
 {-# INLINE rawBodyData #-}
-rawBodyData body = do
+rawBodyData body =
     StateVar get_ set
   where
     get_ = peekVector4 =<< getBodyQuaterniondBodyGetQuaternion body
@@ -162,16 +188,15 @@ rawBodyData body = do
         setBodyQuaterniondBodySetQuaternion body ptr
 
 -----------------------------------------------------------
-safeBodyData :: Body -> StateVar a
-{-# INLINE safeBodyData #-}
-safeBodyData body = do
-    StateVar get_ set
-  where
-    get_ = fmap (fromMaybe (error errMsg)) . tryGetSafeBodyData $ body
-    errMsg = "Physics.ODE.Body.getSafeBodyData: invalid type."
-    set _value = undefined -- TODO setBodyData body (typeOf value, value)
-    -----------------------------------------------------------
+-----------------------------------------------------------
+-----------------------------------------------------------
+-----------------------------------------------------------
+-----------------------------------------------------------
+-----------------------------------------------------------
+-----------------------------------------------------------
+-----------------------------------------------------------
 
+{-
 -----------------------------------------------------------
 tryGetSafeBodyData :: Body -> IO (Maybe a)
 tryGetSafeBodyData _body =
@@ -182,10 +207,18 @@ tryGetSafeBodyData _body =
     -----------------------------------------------------------
 
 -----------------------------------------------------------
+safeBodyData :: Body -> StateVar a
+safeBodyData body =
+    StateVar get_ set
+  where
+    get_ = fmap (fromMaybe (error errMsg)) . tryGetSafeBodyData $ body
+    errMsg = "Physics.ODE.Body.getSafeBodyData: invalid type."
+    set _value = undefined -- TODO setBodyData body (typeOf value, value)
+    -----------------------------------------------------------
+
+-----------------------------------------------------------
 finiteRotationMode :: Body -> StateVar RotationMode
-{-# INLINE finiteRotationMode #-}
-finiteRotationMode body = do
-    StateVar get_ set_
+finiteRotationMode body = StateVar get_ set_
   where
     set_ = undefined
     -- get_ = do
@@ -218,97 +251,44 @@ finiteRotationMode body = do
 
 -----------------------------------------------------------
 finiteRotationAxis :: StateVar a
-{-# INLINE finiteRotationAxis #-}
 finiteRotationAxis =
-    StateVar get_ set
-  where
-    get_ = undefined
-    set value = undefined
-    setFiniteRotationAxis_ ::
-        Body ->
-        ODEreal ->
-        ODEreal ->
-        ODEreal ->
-        IO ()
-    setFiniteRotationAxis_ =
-        \arg_0 arg_1 arg_2 arg_3 ->
-            (\action_4 -> action_4 arg_0)
-                ( \marshaledArg_5 ->
-                    (\action_6 -> action_6 arg_1)
-                        ( \marshaledArg_7 ->
-                            (\action_8 -> action_8 arg_2)
-                                ( \marshaledArg_9 ->
-                                    (\action_10 -> action_10 arg_3)
-                                        ( \marshaledArg_11 -> do
-                                            ret_12 <- dBodySetFiniteRotationAxis marshaledArg_5 marshaledArg_7 marshaledArg_9 marshaledArg_11
-                                            case () of
-                                                () -> do return ()
+    undefined {-
+                StateVar get_ set
+              where
+                get_ = undefined
+                set value = undefined
+                setFiniteRotationAxis_ ::
+                    Body ->
+                    ODEreal ->
+                    ODEreal ->
+                    ODEreal ->
+                    IO ()
+                getFiniteRotationAxis_ :: Body -> IO (ODEreal, ODEreal, ODEreal)
+                setFiniteRotationAxis_ arg_0 arg_1 arg_2 arg_3 =
+                    (\action_4 -> action_4 arg_0)
+                        ( \marshaledArg_5 ->
+                            (\action_6 -> action_6 arg_1)
+                                ( \marshaledArg_7 ->
+                                    (\action_8 -> action_8 arg_2)
+                                        ( \marshaledArg_9 ->
+                                            (\action_10 -> action_10 arg_3)
+                                                ( \marshaledArg_11 -> do
+                                                    ret_12 <- dBodySetFiniteRotationAxis marshaledArg_5 marshaledArg_7 marshaledArg_9 marshaledArg_11
+                                                    case () of
+                                                        () -> return ()
+                                                )
                                         )
                                 )
                         )
-                )
-    getFiniteRotationAxis_ :: Body -> IO ((ODEreal, ODEreal, ODEreal))
-    getFiniteRotationAxis_ =
-        \arg_0 ->
-            (\action_1 -> action_1 arg_0)
-                ( \marshaledArg_2 ->
-                    allocaArray
-                        4
-                        ( \marshaledArg_3 -> do
-                            ret_4 <- dBodyGetFiniteRotationAxis marshaledArg_2 marshaledArg_3
-                            peekVector3 (marshaledArg_3)
-                        )
-                )
-
------------------------------------------------------------
-addForce :: Body -> ODEreal -> ODEreal -> ODEreal -> IO ()
-addForce =
-    \arg_0 arg_1 arg_2 arg_3 ->
-        (\action_4 -> action_4 arg_0)
-            ( \marshaledArg_5 ->
-                (\action_6 -> action_6 arg_1)
-                    ( \marshaledArg_7 ->
-                        (\action_8 -> action_8 arg_2)
-                            ( \marshaledArg_9 ->
-                                (\action_10 -> action_10 arg_3)
-                                    ( \marshaledArg_11 -> do
-                                        ret_12 <- addForcedBodyAddForce marshaledArg_5 marshaledArg_7 marshaledArg_9 marshaledArg_11
-                                        case () of
-                                            () -> do return ()
-                                    )
-                            )
-                    )
-            )
-
------------------------------------------------------------
-addTorque :: Body -> ODEreal -> ODEreal -> ODEreal -> IO ()
-addTorque = \arg_0 arg_1 arg_2 arg_3 ->
-    (\action_4 -> action_4 arg_0)
-        ( \marshaledArg_5 ->
-            (\action_6 -> action_6 arg_1)
-                ( \marshaledArg_7 ->
-                    (\action_8 -> action_8 arg_2)
-                        ( \marshaledArg_9 ->
-                            (\action_10 -> action_10 arg_3)
-                                ( \marshaledArg_11 -> do
-                                    ret_12 <- addTorquedBodyAddTorque marshaledArg_5 marshaledArg_7 marshaledArg_9 marshaledArg_11
-                                    case () of
-                                        () -> do return ()
+                getFiniteRotationAxis_ arg_0 =
+                    (\action_1 -> action_1 arg_0)
+                        ( \marshaledArg_2 ->
+                            allocaArray
+                                4
+                                ( \marshaledArg_3 -> do
+                                    ret_4 <- dBodyGetFiniteRotationAxis marshaledArg_2 marshaledArg_3
+                                    peekVector3 marshaledArg_3
                                 )
                         )
-                )
-        )
-
------------------------------------------------------------
-isBodyEnabled :: Body -> IO Bool
-isBodyEnabled body = do
-    toBool <$> isBodyEnableddBodyIsEnabled body
-
------------------------------------------------------------
-getNumJoints :: Body -> IO Int
-getNumJoints = dBodyGetNumJoints
-
------------------------------------------------------------
--- 420
-getJoint :: Body -> Int -> IO Joint
-getJoint = getJointdBodyGetJoint
+                        -}
+                        -}

@@ -1,22 +1,16 @@
 
 import Physics.ODE.Body as Body
-import Physics.ODE.Raw.World as World
 import Physics.ODE.World as World
+import Physics.ODE as ODE
 import Physics.ODE.Raw.Joint as Joint
-import Physics.ODE.Raw.Objects as Object
+import Physics.ODE.Objects as Object
 import Physics.ODE.Geom as Geom
 import Data.StateVar
 
 
---foo = 
---    Ball
---        (Sphere 10)
---        (Sphere 32)
-
-
 main :: IO ()
 main = do
-    World.withODE $ \w -> do
+    ODE.withODE $ \w -> do
 
         b0 <- Body.create w
         b1 <- Body.create w
@@ -36,7 +30,7 @@ main = do
         World.step w 0.1
         Body.position b0 $= (10, 10, 10)
         World.step w 0.1
-        x <- get (Body.position b0)
-        y <- get (Body.position b1)
-        print (x,y)
+        x_ <- get (Body.position b0)
+        y_ <- get (Body.position b1)
+        print (x_,y_)
         putStrLn "Test suite not yet implemented"

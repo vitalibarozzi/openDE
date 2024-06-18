@@ -87,15 +87,8 @@ foreign import ccall unsafe "dBodyIsEnabled"
     isBodyEnableddBodyIsEnabled ::
         Body ->
         IO Int
-foreign import ccall unsafe "dBodySetFiniteRotationMode"
-    setFiniteRotationMode_dBodySetFiniteRotationMode ::
-        Body ->
-        Int ->
-        IO ()
-foreign import ccall unsafe "dBodyGetFiniteRotationMode"
-    getFiniteRotationMode_dBodyGetFiniteRotationMode ::
-        Body ->
-        IO Int
+foreign import ccall unsafe "dBodySetFiniteRotationMode" setFiniteRotationMode_dBodySetFiniteRotationMode :: Body -> Int -> IO ()
+foreign import ccall unsafe "dBodyGetFiniteRotationMode" getFiniteRotationMode_dBodyGetFiniteRotationMode :: Body -> IO Int
 foreign import ccall unsafe "dBodySetFiniteRotationAxis" dBodySetFiniteRotationAxis :: Body -> ODEreal -> ODEreal -> ODEreal -> IO ()
 foreign import ccall unsafe "dBodyGetFiniteRotationAxis" dBodyGetFiniteRotationAxis :: Body -> Ptr ODEreal -> IO ()
 foreign import ccall unsafe "dBodyGetNumJoints" dBodyGetNumJoints :: Body -> IO Int
