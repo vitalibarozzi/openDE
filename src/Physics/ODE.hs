@@ -1,4 +1,5 @@
-module Physics.ODE where
+module Physics.ODE (initODE, closeODE, withODE, step, quickStep)
+where
 
 import Control.Exception
 import Control.Monad.IO.Class
@@ -9,12 +10,14 @@ import Physics.ODE.World (create)
 -----------------------------------------------------------
 initODE :: IO ()
 {-# INLINE initODE #-}
-initODE = World.c'initODE
+initODE =
+    World.c'initODE
 
 -----------------------------------------------------------
 closeODE :: IO ()
 {-# INLINE closeODE #-}
-closeODE = World.c'closeODE
+closeODE =
+    World.c'closeODE
 
 -----------------------------------------------------------
 
@@ -31,3 +34,15 @@ withODE k =
             (\() -> closeODE)
             (\() -> k =<< create)
         )
+
+-----------------------------------------------------------
+step :: World -> DeltaTime Float -> IO ()
+{-# INLINE step #-}
+step =
+    c'stepdWorldStep
+
+-----------------------------------------------------------
+quickStep :: World -> DeltaTime Float -> IO ()
+{-# INLINE quickStep #-}
+quickStep =
+    c'quickStepdWorldQuickStep

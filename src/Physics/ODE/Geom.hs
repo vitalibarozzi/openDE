@@ -42,7 +42,7 @@ import Foreign
 import Physics.ODE.Raw.Geom
 import Physics.ODE.Raw.Hsc
 import Physics.ODE.Raw.Types
-import Physics.ODE.Raw.Utilities
+import Physics.ODE.Utilities
 
 -----------------------------------------------------------
 destroyGeom :: Geom -> IO ()
@@ -86,7 +86,7 @@ setGeomRotation arg_0 arg_1 = (\action_2 -> action_2 arg_0)
 -----------------------------------------------------------
 getGeomQuaternion ::
     Geom ->
-    IO (ODEreal, ODEreal, ODEreal, ODEreal)
+    IO (Float, Float, Float, Float)
 getGeomQuaternion arg_0 = (\action_1 -> action_1 arg_0)
         ( \marshaledArg_2 ->
             allocaArray
@@ -98,7 +98,7 @@ getGeomQuaternion arg_0 = (\action_1 -> action_1 arg_0)
         )
 setGeomQuaternion ::
     Geom ->
-    (ODEreal, ODEreal, ODEreal, ODEreal) ->
+    (Float, Float, Float, Float) ->
     IO ()
 setGeomQuaternion arg_0 arg_1 = (\action_2 -> action_2 arg_0)
         ( ( \action_4 ->
@@ -128,13 +128,13 @@ setGeomQuaternion arg_0 arg_1 = (\action_2 -> action_2 arg_0)
 
 
 -----------------------------------------------------------
-getGeomPosition :: Geom -> IO (ODEreal, ODEreal, ODEreal)
+getGeomPosition :: Geom -> IO (Float, Float, Float)
 getGeomPosition arg_0 = (\action_1 -> action_1 arg_0)
         ( \marshaledArg_2 -> do
             ret_3 <- getGeomPositiondGeomGetPosition marshaledArg_2
             peekVector3 ret_3
         )
-setGeomPosition :: Geom -> ODEreal -> ODEreal -> ODEreal -> IO ()
+setGeomPosition :: Geom -> Float -> Float -> Float -> IO ()
 setGeomPosition arg_0 arg_1 arg_2 arg_3 = (\action_4 -> action_4 arg_0)
         ( \marshaledArg_5 ->
             (\action_6 -> action_6 arg_1)

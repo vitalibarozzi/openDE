@@ -19,7 +19,7 @@ module Physics.ODE.Raw.Hsc
     ) where
 
 import Physics.ODE.Raw.Types
-import Physics.ODE.Raw.Utilities
+import Physics.ODE.Utilities
 import Foreign
 
 import Control.Monad
@@ -44,7 +44,7 @@ instance Storable ContactGeom where
 
 instance Storable ContactInfo where
     sizeOf _ = (248)
-    alignment _ = alignment (undefined :: ODEreal)
+    alignment _ = alignment (undefined :: Float)
     peek ptr
         = do surface <- (\hsc_ptr -> peekByteOff hsc_ptr 0) ptr
              geom    <- (\hsc_ptr -> peekByteOff hsc_ptr 120) ptr
@@ -57,7 +57,7 @@ instance Storable ContactInfo where
 
 instance Storable Surface where
     sizeOf _ = (120)
-    alignment _ = alignment (undefined :: ODEreal)
+    alignment _ = alignment (undefined :: Float)
     peek ptr
         = do mode <- fmap (fromBitmask fromSurfaceMode) ((\hsc_ptr -> peekByteOff hsc_ptr 0) ptr)
              let mbPeek flag action
@@ -144,12 +144,12 @@ sizeOfMass :: Int
 sizeOfMass = (136)
 
 sizeOfMatrix3 :: Int
-sizeOfMatrix3 = sizeOf (undefined::ODEreal)*4*3
+sizeOfMatrix3 = sizeOf (undefined::Float)*4*3
 
 sizeOfMatrix4 :: Int
-sizeOfMatrix4 = sizeOf (undefined::ODEreal)*4*4
+sizeOfMatrix4 = sizeOf (undefined::Float)*4*4
 
-peekMass :: Ptr MassStruct -> IO ODEreal
+peekMass :: Ptr MassStruct -> IO Float
 peekMass = (\hsc_ptr -> peekByteOff hsc_ptr 0)
 
 toJointType :: Int -> JointType

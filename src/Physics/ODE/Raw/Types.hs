@@ -4,61 +4,57 @@ module Physics.ODE.Raw.Types where
 
 import Foreign
 
-type ODEreal = Float
+type DeltaTime a = a
 
-type Matrix3 = Ptr ODEreal
-type Quaternion = (ODEreal, ODEreal, ODEreal, ODEreal)
+type Matrix3 = Ptr Float
+
+type Quaternion = (Float, Float, Float, Float) -- TODO make v4
+
+type RawCallback = Ptr () -> Ptr GeomStruct -> Ptr GeomStruct -> IO ()
 
 data WorldStruct
-type World = Ptr WorldStruct
-
 data SpaceStruct
-type Space = Ptr SpaceStruct
-
 data BodyStruct
-type Body = Ptr BodyStruct
-
 data GeomStruct
-type Geom = Ptr GeomStruct
-
 data JointStruct
-type Joint = Ptr JointStruct
-
 data JointGroupStruct
+data MassStruct
+
+type Mass = ForeignPtr MassStruct -- whys is this one different?
+type World = Ptr WorldStruct
+type Space = Ptr SpaceStruct
+type Body = Ptr BodyStruct
+type Geom = Ptr GeomStruct
+type Joint = Ptr JointStruct
 type JointGroup = Ptr JointGroupStruct
 
-data MassStruct
-type Mass = ForeignPtr MassStruct
+data ContactGeom = ContactGeom
+    { contactPos :: (Float, Float, Float) -- TODO make V3
+    , contactNormal :: (Float, Float, Float) -- TODO make V3
+    , contactDepth :: Float
+    , contactObjects :: (Geom, Geom) -- TODO make v2
+    }
+    deriving (Show)
 
-data ContactGeom
-    = ContactGeom
-    { contactPos    :: (ODEreal, ODEreal, ODEreal)
-    , contactNormal :: (ODEreal, ODEreal, ODEreal)
-    , contactDepth  :: ODEreal
-    , contactObjects:: (Geom,Geom)
-    } deriving (Show)
-
-data ContactInfo
-    = ContactInfo
+data ContactInfo = ContactInfo
     { contactSurface :: Surface
-    , contactGeom    :: ContactGeom
-    , contactFDir1   :: (ODEreal,ODEreal,ODEreal)
-    } deriving (Show)
+    , contactGeom :: ContactGeom
+    , contactFDir1 :: (Float, Float, Float) -- TODO make v3
+    }
+    deriving (Show)
 
-data Surface
-    = Surface
-    { surfaceMu      :: ODEreal
-    , surfaceMu2     :: Maybe ODEreal
-    , surfaceBounce  :: Maybe (ODEreal,ODEreal)
-    , surfaceSoftERP :: Maybe ODEreal
-    , surfaceSoftCFM :: Maybe ODEreal
-    , surfaceMotion1 :: Maybe ODEreal
-    , surfaceMotion2 :: Maybe ODEreal
-    , surfaceSlip1   :: Maybe ODEreal
-    , surfaceSlip2   :: Maybe ODEreal
-    } deriving (Show,Eq)
-
-
+data Surface = Surface
+    { surfaceMu :: Float
+    , surfaceMu2 :: Maybe Float
+    , surfaceBounce :: Maybe (Float, Float)
+    , surfaceSoftERP :: Maybe Float
+    , surfaceSoftCFM :: Maybe Float
+    , surfaceMotion1 :: Maybe Float
+    , surfaceMotion2 :: Maybe Float
+    , surfaceSlip1 :: Maybe Float
+    , surfaceSlip2 :: Maybe Float
+    }
+    deriving (Show, Eq)
 
 data SurfaceMode
     = HaveMu2
@@ -72,7 +68,7 @@ data SurfaceMode
     | HaveSlip2
     | HaveApprox11
     | HaveApprox12
-      deriving (Show,Eq,Enum,Bounded)
+    deriving (Show, Eq, Enum, Bounded)
 
 data JointType
     = Ball
@@ -83,12 +79,12 @@ data JointType
     | Hinge2
     | Fixed
     | AMotor
-      deriving (Show,Eq,Ord)
+    deriving (Show, Eq, Ord)
 
 data BodyIndex
     = First
     | Second
-      deriving (Show,Eq,Ord)
+    deriving (Show, Eq, Ord)
 
 data GeomClass
     = Sphere
@@ -101,9 +97,9 @@ data GeomClass
     | TriangleMesh
     | SimpleSpace
     | HashSpace
-      deriving (Show,Eq,Ord)
+    deriving (Show, Eq, Ord)
 
 data RotationMode
     = Infinitesimal
-    | Finite ODEreal ODEreal ODEreal
-      deriving (Show,Eq,Ord)
+    | Finite Float Float Float
+    deriving (Show, Eq, Ord)

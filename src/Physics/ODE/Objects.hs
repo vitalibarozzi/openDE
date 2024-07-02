@@ -19,13 +19,13 @@ module Physics.ODE.Objects (
 import Data.Maybe
 import Foreign
 import Physics.ODE.Raw.Types
-import Physics.ODE.Raw.Utilities
+import Physics.ODE.Utilities
 import Physics.ODE.Raw.Objects
 
 -- foreign import ccall unsafe "&dGeomDestroy" cDestroy :: FinalizerPtr GeomStruct
 -- -------------------------------------------
 --  Sphere class
-createSphere :: Maybe Space -> ODEreal -> IO Geom
+createSphere :: Maybe Space -> Float -> IO Geom
 createSphere = \arg_0 arg_1 ->
     ( case arg_0 of
         Data.Maybe.Just a_2 -> \action_3 -> action_3 a_2
@@ -38,7 +38,7 @@ createSphere = \arg_0 arg_1 ->
                     return (ret_8)
                 )
         )
-sphereSetRadius :: Geom -> ODEreal -> IO ()
+sphereSetRadius :: Geom -> Float -> IO ()
 sphereSetRadius = \arg_0 arg_1 ->
     (\action_2 -> action_2 arg_0)
         ( \marshaledArg_3 ->
@@ -49,7 +49,7 @@ sphereSetRadius = \arg_0 arg_1 ->
                         () -> do return ()
                 )
         )
-sphereGetRadius :: Geom -> IO ODEreal
+sphereGetRadius :: Geom -> IO Float
 sphereGetRadius = \arg_0 ->
     (\action_1 -> action_1 arg_0)
         ( \marshaledArg_2 -> do
@@ -58,10 +58,10 @@ sphereGetRadius = \arg_0 ->
         )
 spherePointDepth ::
     Geom ->
-    ODEreal ->
-    ODEreal ->
-    ODEreal ->
-    IO ODEreal
+    Float ->
+    Float ->
+    Float ->
+    IO Float
 spherePointDepth = \arg_0 arg_1 arg_2 arg_3 ->
     (\action_4 -> action_4 arg_0)
         ( \marshaledArg_5 ->
@@ -82,9 +82,9 @@ spherePointDepth = \arg_0 arg_1 arg_2 arg_3 ->
 --  Box class
 createBox ::
     Maybe Space ->
-    ODEreal ->
-    ODEreal ->
-    ODEreal ->
+    Float ->
+    Float ->
+    Float ->
     IO Geom
 createBox = \arg_0 arg_1 arg_2 arg_3 ->
     ( case arg_0 of
@@ -104,7 +104,7 @@ createBox = \arg_0 arg_1 arg_2 arg_3 ->
                         )
                 )
         )
-boxSetLengths :: Geom -> ODEreal -> ODEreal -> ODEreal -> IO ()
+boxSetLengths :: Geom -> Float -> Float -> Float -> IO ()
 boxSetLengths = \arg_0 arg_1 arg_2 arg_3 ->
     (\action_4 -> action_4 arg_0)
         ( \marshaledArg_5 ->
@@ -121,7 +121,7 @@ boxSetLengths = \arg_0 arg_1 arg_2 arg_3 ->
                         )
                 )
         )
-boxGetLengths :: Geom -> IO ((ODEreal, ODEreal, ODEreal))
+boxGetLengths :: Geom -> IO ((Float, Float, Float))
 boxGetLengths = \arg_0 ->
     (\action_1 -> action_1 arg_0)
         ( \marshaledArg_2 ->
@@ -134,10 +134,10 @@ boxGetLengths = \arg_0 ->
         )
 boxPointDepth ::
     Geom ->
-    ODEreal ->
-    ODEreal ->
-    ODEreal ->
-    IO ODEreal
+    Float ->
+    Float ->
+    Float ->
+    IO Float
 boxPointDepth = \arg_0 arg_1 arg_2 arg_3 ->
     (\action_4 -> action_4 arg_0)
         ( \marshaledArg_5 ->
@@ -158,10 +158,10 @@ boxPointDepth = \arg_0 arg_1 arg_2 arg_3 ->
 --  Plane class
 createPlane ::
     Maybe Space ->
-    ODEreal ->
-    ODEreal ->
-    ODEreal ->
-    ODEreal ->
+    Float ->
+    Float ->
+    Float ->
+    Float ->
     IO Geom
 createPlane = \arg_0 arg_1 arg_2 arg_3 arg_4 ->
     ( case arg_0 of
@@ -186,10 +186,10 @@ createPlane = \arg_0 arg_1 arg_2 arg_3 arg_4 ->
         )
 planeSetParams ::
     Geom ->
-    ODEreal ->
-    ODEreal ->
-    ODEreal ->
-    ODEreal ->
+    Float ->
+    Float ->
+    Float ->
+    Float ->
     IO ()
 planeSetParams = \arg_0 arg_1 arg_2 arg_3 arg_4 ->
     (\action_5 -> action_5 arg_0)
@@ -210,7 +210,7 @@ planeSetParams = \arg_0 arg_1 arg_2 arg_3 arg_4 ->
                         )
                 )
         )
-planeGetParams :: Geom -> IO ((ODEreal, ODEreal, ODEreal, ODEreal))
+planeGetParams :: Geom -> IO ((Float, Float, Float, Float))
 planeGetParams = \arg_0 ->
     (\action_1 -> action_1 arg_0)
         ( \marshaledArg_2 ->
@@ -223,10 +223,10 @@ planeGetParams = \arg_0 ->
         )
 planePointDepth ::
     Geom ->
-    ODEreal ->
-    ODEreal ->
-    ODEreal ->
-    IO ODEreal
+    Float ->
+    Float ->
+    Float ->
+    IO Float
 planePointDepth = \arg_0 arg_1 arg_2 arg_3 ->
     (\action_4 -> action_4 arg_0)
         ( \marshaledArg_5 ->

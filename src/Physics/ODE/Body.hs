@@ -30,9 +30,9 @@ where
 import Data.StateVar
 import Foreign
 import Physics.ODE.Raw.Body
-import qualified Physics.ODE.Raw.Mass as Mass (create)
+import qualified Physics.ODE.Mass as Mass (create)
 import Physics.ODE.Raw.Types
-import Physics.ODE.Raw.Utilities
+import Physics.ODE.Utilities
 
 -----------------------------------------------------------
 create :: World -> IO Body
@@ -47,13 +47,13 @@ destroy =
     destroyBodydBodyDestroy
 
 -----------------------------------------------------------
-addForce :: Body -> ODEreal -> ODEreal -> ODEreal -> IO ()
+addForce :: Body -> Float -> Float -> Float -> IO ()
 {-# INLINE addForce #-}
 addForce =
     addForcedBodyAddForce
 
 -----------------------------------------------------------
-addTorque :: Body -> ODEreal -> ODEreal -> ODEreal -> IO ()
+addTorque :: Body -> Float -> Float -> Float -> IO ()
 {-# INLINE addTorque #-}
 addTorque =
     addTorquedBodyAddTorque
@@ -77,7 +77,7 @@ getJoint =
     getJointdBodyGetJoint
 
 -----------------------------------------------------------
-position :: Body -> StateVar (ODEreal, ODEreal, ODEreal)
+position :: Body -> StateVar (Float, Float, Float)
 {-# INLINE position #-}
 position body =
     StateVar
@@ -85,7 +85,7 @@ position body =
         (\(x, y, z) -> setBodyPositiondBodySetPosition body x y z)
 
 -----------------------------------------------------------
-quaternion :: Body -> StateVar (ODEreal, ODEreal, ODEreal, ODEreal)
+quaternion :: Body -> StateVar (Float, Float, Float, Float)
 {-# INLINE quaternion #-}
 quaternion body =
     StateVar get_ set
@@ -114,7 +114,7 @@ rotation body =
     set = setBodyRotationdBodySetRotation body
 
 -----------------------------------------------------------
-force :: Body -> StateVar (ODEreal, ODEreal, ODEreal)
+force :: Body -> StateVar (Float, Float, Float)
 {-# INLINE force #-}
 force body =
     StateVar get_ set
@@ -123,7 +123,7 @@ force body =
     set (x, y, z) = setForcedBodySetForce body x y z
 
 -----------------------------------------------------------
-torque :: Ptr BodyStruct -> StateVar (ODEreal, ODEreal, ODEreal)
+torque :: Ptr BodyStruct -> StateVar (Float, Float, Float)
 {-# INLINE torque #-}
 torque body =
     StateVar get_ set
@@ -150,7 +150,7 @@ bodyData body =
     set value = newStablePtr value >>= \stablePtr -> setRawBodyData body (castStablePtrToPtr stablePtr)
 
 -----------------------------------------------------------
-linearVel :: Body -> StateVar (ODEreal, ODEreal, ODEreal)
+linearVel :: Body -> StateVar (Float, Float, Float)
 {-# INLINE linearVel #-}
 linearVel body =
     StateVar get_ set_
@@ -159,7 +159,7 @@ linearVel body =
     set_ (x, y, z) = setLinearVeldBodySetLinearVel body x y z
 
 -----------------------------------------------------------
-angularVel :: Body -> StateVar (ODEreal, ODEreal, ODEreal)
+angularVel :: Body -> StateVar (Float, Float, Float)
 {-# INLINE angularVel #-}
 angularVel body =
     StateVar get_ set_
@@ -177,7 +177,7 @@ enabled body =
     set enable = if enable then enableBodydBodyEnable body else disableBodydBodyDisable body
 
 -----------------------------------------------------------
-rawBodyData :: Body -> StateVar (ODEreal, ODEreal, ODEreal, ODEreal)
+rawBodyData :: Body -> StateVar (Float, Float, Float, Float)
 {-# INLINE rawBodyData #-}
 rawBodyData body =
     StateVar get_ set
@@ -259,11 +259,11 @@ finiteRotationAxis =
                 set value = undefined
                 setFiniteRotationAxis_ ::
                     Body ->
-                    ODEreal ->
-                    ODEreal ->
-                    ODEreal ->
+                    Float ->
+                    Float ->
+                    Float ->
                     IO ()
-                getFiniteRotationAxis_ :: Body -> IO (ODEreal, ODEreal, ODEreal)
+                getFiniteRotationAxis_ :: Body -> IO (Float, Float, Float)
                 setFiniteRotationAxis_ arg_0 arg_1 arg_2 arg_3 =
                     (\action_4 -> action_4 arg_0)
                         ( \marshaledArg_5 ->

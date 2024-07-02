@@ -24,6 +24,8 @@ library
       Physics.ODE.Body
       Physics.ODE.Collision
       Physics.ODE.Geom
+      Physics.ODE.Joint
+      Physics.ODE.Mass
       Physics.ODE.Objects
       Physics.ODE.Raw.Body
       Physics.ODE.Raw.Collision
@@ -35,9 +37,10 @@ library
       Physics.ODE.Raw.Rotation
       Physics.ODE.Raw.Space
       Physics.ODE.Raw.Types
-      Physics.ODE.Raw.Utilities
       Physics.ODE.Raw.World
+      Physics.ODE.Rotation
       Physics.ODE.Space
+      Physics.ODE.Utilities
       Physics.ODE.World
   other-modules:
       Paths_OpenDE

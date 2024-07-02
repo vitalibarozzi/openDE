@@ -1,33 +1,21 @@
 module Physics.ODE.Raw.Rotation
-    ( createMatrix3
-    , setIdentity
+    ( setIdentity
     , fromAxisAndAngle
     , fromEulerAngles
---    , rToQ
-    , peekMatrix3
     ) where
 
-import Foreign
-
 import Physics.ODE.Raw.Types
-import Physics.ODE.Raw.Hsc
 
 
 
 foreign import ccall unsafe "dRSetIdentity" setIdentity :: Matrix3 -> IO ()
-foreign import ccall unsafe "dRFromAxisAndAngle" fromAxisAndAngle :: Matrix3 -> ODEreal -> ODEreal -> ODEreal -> ODEreal -> IO ()
-foreign import ccall unsafe "dRFromEulerAngles" fromEulerAngles :: Matrix3 -> ODEreal -> ODEreal -> ODEreal -> IO ()
+foreign import ccall unsafe "dRFromAxisAndAngle" fromAxisAndAngle :: Matrix3 -> Float -> Float -> Float -> Float -> IO ()
+foreign import ccall unsafe "dRFromEulerAngles" fromEulerAngles :: Matrix3 -> Float -> Float -> Float -> IO ()
 
-
-
-createMatrix3 :: IO Matrix3
-createMatrix3 = do matrix <- mallocBytes sizeOfMatrix3
-                   setIdentity matrix
-                   return matrix
 
 
 {-foreign import ccall unsafe "dRtoQ" dRtoQ
-    :: Matrix3 -> Ptr ODEreal -> IO ()
+    :: Matrix3 -> Ptr Float -> IO ()
 
 rToQ :: Matrix3 -> IO Quaternion
 rToQ matrix
@@ -37,5 +25,3 @@ rToQ matrix
          return (a,b,c,d) -}
 
 
-peekMatrix3 :: Matrix3 -> IO [ODEreal]
-peekMatrix3 = peekArray (3*4)

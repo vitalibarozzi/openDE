@@ -9,10 +9,10 @@ foreign import ccall unsafe "dGeomDestroy" destroyGeomdGeomDestroy :: Geom -> IO
 foreign import ccall unsafe "dGeomSetBody" setBodydGeomSetBody :: Geom -> Body -> IO ()
 foreign import ccall unsafe "dGeomGetBody" getBodyUnsafedGeomGetBody :: Geom -> IO Body
 foreign import ccall unsafe "dGeomGetBody" getBodydGeomGetBody :: Geom -> IO Body
-foreign import ccall unsafe "dGeomSetPosition" setGeomPositiondGeomSetPosition :: Geom -> ODEreal -> ODEreal -> ODEreal -> IO ()
-foreign import ccall unsafe "dGeomGetPosition" getGeomPositiondGeomGetPosition :: Geom -> IO (Ptr ODEreal)
-foreign import ccall unsafe "dGeomSetQuaternion" setGeomQuaterniondGeomSetQuaternion :: Geom -> Ptr ODEreal -> IO ()
-foreign import ccall unsafe "dGeomGetQuaternion" getGeomQuaterniondGeomGetQuaternion :: Geom -> Ptr ODEreal -> IO ()
+foreign import ccall unsafe "dGeomSetPosition" setGeomPositiondGeomSetPosition :: Geom -> Float -> Float -> Float -> IO ()
+foreign import ccall unsafe "dGeomGetPosition" getGeomPositiondGeomGetPosition :: Geom -> IO (Ptr Float)
+foreign import ccall unsafe "dGeomSetQuaternion" setGeomQuaterniondGeomSetQuaternion :: Geom -> Ptr Float -> IO ()
+foreign import ccall unsafe "dGeomGetQuaternion" getGeomQuaterniondGeomGetQuaternion :: Geom -> Ptr Float -> IO ()
 foreign import ccall unsafe "dGeomSetRotation" setGeomRotationdGeomSetRotation :: Geom -> Matrix3 -> IO ()
 foreign import ccall unsafe "dGeomGetRotation" getGeomRotationdGeomGetRotation :: Geom -> IO Matrix3
 foreign import ccall unsafe "dGeomIsSpace" isSpacedGeomIsSpace :: Geom -> IO Int
