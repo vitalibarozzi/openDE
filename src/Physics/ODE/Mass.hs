@@ -41,10 +41,10 @@ setZero :: Mass -> IO ()
 setZero mass_ =
     withForeignPtr
         mass_
-        setZerodMassSetZero
+        c'setZero
 
 -----------------------------------------------------------
 -- TODO not a float, there are more things, its a struct
 adjust :: Mass -> Float -> IO ()
 adjust mass_ newValue =
-    withForeignPtr mass_ (`adjustdMassAdjust` newValue)
+    withForeignPtr mass_ (`c'adjustdMassAdjust` newValue)
