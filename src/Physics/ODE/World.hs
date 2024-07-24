@@ -3,9 +3,12 @@ module Physics.ODE.World (
     destroy,
     gravity,
     contactSurfaceLayer,
+    setCFM,
+    getCFM,
 )
 where
 
+import Control.Monad.IO.Class
 import Data.StateVar
 import Foreign
 import Physics.ODE.Raw.Types as World
@@ -13,16 +16,16 @@ import Physics.ODE.Utilities
 import Physics.ODE.Raw.World as World
 
 -----------------------------------------------------------
-create :: IO World
+create :: (MonadIO m) => m World
 {-# INLINE create #-}
 create =
-    c'createdWorldCreate
+    liftIO c'createdWorldCreate
 
 -----------------------------------------------------------
-destroy :: World -> IO ()
+destroy :: (MonadIO m) => World -> m ()
 {-# INLINE destroy #-}
 destroy =
-    c'destroyWorlddWorldDestroy
+    liftIO . c'destroyWorlddWorldDestroy
 
 -----------------------------------------------------------
 gravity :: World -> StateVar (Float, Float, Float)
@@ -41,3 +44,11 @@ contactSurfaceLayer world = do
   where
     get_ = c'getContactSurfaceLayerdWorldGetContactSurfaceLayer world
     set_ = c'setContactSurfaceLayerdWorldSetContactSurfaceLayer world
+
+-----------------------------------------------------------
+setCFM :: (MonadIO m) => World -> Float -> m ()
+setCFM w f = liftIO (c'worldSetCFM w f)
+
+-----------------------------------------------------------
+getCFM :: (MonadIO m) => World -> m Float
+getCFM = liftIO . c'worldGetCFM

@@ -7,40 +7,44 @@ module Physics.ODE.Mass (
 ) where
 
 import Foreign
-import Physics.ODE.Raw.Hsc
 import Physics.ODE.Raw.Types
 import Physics.ODE.Utilities
 import Physics.ODE.Raw.Mass
 
+
+
+-----------------------------------------------------------
 create :: IO Mass
-create = mallocForeignPtrBytes sizeOfMass
+create =
+    mallocForeignPtrBytes sizeOfMass
+  where
+    sizeOfMass = 136
 
+-----------------------------------------------------------
 destroyMass :: Mass -> IO ()
-destroyMass = forceFinalization
+destroyMass =
+    forceFinalization
 
+-----------------------------------------------------------
+-- TODO not a float, there are more things, its a struct
 mass :: Mass -> IO Float
-mass m = withForeignPtr m peekMass
+mass m =
+    withForeignPtr m peekMass
+  where
+    peekMass ptr =
+        peekByteOff ptr 0
 
+
+-----------------------------------------------------------
 --  void dMassSetZero (dMass *);
 setZero :: Mass -> IO ()
-setZero = \arg_0 ->
+setZero mass_ =
     withForeignPtr
-        arg_0
-        ( \marshaledArg_1 -> do
-            ret_2 <- setZerodMassSetZero marshaledArg_1
-            case () of
-                () -> do return ()
-        )
+        mass_
+        setZerodMassSetZero
 
+-----------------------------------------------------------
+-- TODO not a float, there are more things, its a struct
 adjust :: Mass -> Float -> IO ()
-adjust = \arg_0 arg_1 ->
-    withForeignPtr
-        arg_0
-        ( \marshaledArg_2 ->
-            (\action_3 -> action_3 arg_1)
-                ( \marshaledArg_4 -> do
-                    ret_5 <- adjustdMassAdjust marshaledArg_2 marshaledArg_4
-                    case () of
-                        () -> do return ()
-                )
-        )
+adjust mass_ newValue =
+    withForeignPtr mass_ (`adjustdMassAdjust` newValue)

@@ -1,4 +1,12 @@
-module Physics.ODE (initODE, closeODE, withODE, step, quickStep)
+-- | Execution.
+module Physics.ODE (
+    initODE,
+    closeODE,
+    withODE,
+    withODE_,
+    step,
+    quickStep,
+)
 where
 
 import Control.Exception
@@ -8,16 +16,16 @@ import Physics.ODE.Raw.World as World
 import Physics.ODE.World (create)
 
 -----------------------------------------------------------
-initODE :: IO ()
+initODE :: (MonadIO m) => m ()
 {-# INLINE initODE #-}
 initODE =
-    World.c'initODE
+    liftIO World.c'initODE
 
 -----------------------------------------------------------
-closeODE :: IO ()
+closeODE :: (MonadIO m) => m ()
 {-# INLINE closeODE #-}
 closeODE =
-    World.c'closeODE
+    liftIO World.c'closeODE
 
 -----------------------------------------------------------
 
@@ -36,13 +44,24 @@ withODE k =
         )
 
 -----------------------------------------------------------
-step :: World -> DeltaTime Float -> IO ()
-{-# INLINE step #-}
-step =
-    c'stepdWorldStep
+-- wtf?
+withODE_ :: (MonadIO m) => (World.World -> m ()) -> m ()
+{-# INLINEABLE withODE_ #-}
+withODE_ k = do
+    liftIO initODE
+    k =<< liftIO create
+    liftIO closeODE
+
+-- TODO add comments about the difference between the 2
 
 -----------------------------------------------------------
-quickStep :: World -> DeltaTime Float -> IO ()
+step :: (MonadIO m) => World -> DeltaTime Float -> m ()
+{-# INLINE step #-}
+step w d =
+    liftIO (c'stepdWorldStep w d)
+
+-----------------------------------------------------------
+quickStep :: (MonadIO m) => World -> DeltaTime Float -> m ()
 {-# INLINE quickStep #-}
-quickStep =
-    c'quickStepdWorldQuickStep
+quickStep w d =
+    liftIO (c'quickStepdWorldQuickStep w d)

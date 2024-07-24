@@ -21,6 +21,9 @@ module Physics.ODE.Joint (
     getBallAnchor,
     setHingeAnchor,
     setHingeAxis,
+    enable,
+    disable,
+    isEnabled,
 )
 where
 
@@ -31,6 +34,19 @@ import Physics.ODE.Raw.Hsc
 import Physics.ODE.Raw.Joint
 import Physics.ODE.Raw.Types
 import Physics.ODE.Utilities
+import Control.Monad.IO.Class
+
+disable :: (MonadIO m) => Joint -> m ()
+{-# INLINE disable #-}
+disable = liftIO . c'jointEnable
+
+enable :: (MonadIO m) => Joint -> m ()
+{-# INLINE enable #-}
+enable = liftIO . c'jointDisable
+
+isEnabled :: (MonadIO m) => Joint -> m Bool
+{-# INLINE isEnabled #-}
+isEnabled = liftIO . c'jointIsEnabled
 
 createGroup :: IO JointGroup
 createGroup = createGroup' 0

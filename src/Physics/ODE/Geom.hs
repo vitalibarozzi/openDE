@@ -46,18 +46,20 @@ import Physics.ODE.Utilities
 
 -----------------------------------------------------------
 destroyGeom :: Geom -> IO ()
-destroyGeom arg_0 = (\action_1 -> action_1 arg_0)
+destroyGeom arg_0 = 
+    (\action_1 -> action_1 arg_0)
         destroyGeomdGeomDestroy
 
 -----------------------------------------------------------
 getBody :: Geom -> IO (Maybe Body)
-getBody arg_0 = (\action_1 -> action_1 arg_0)
-        ( \marshaledArg_2 -> do
-            ret_3 <- getBodydGeomGetBody marshaledArg_2
-            if ret_3 == nullPtr
-                then return Nothing
-                else return (Just ret_3)
-        )
+getBody arg_0 = 
+    (\action_1 -> action_1 arg_0)
+    ( \marshaledArg_2 -> do
+        ret_3 <- getBodydGeomGetBody marshaledArg_2
+        if ret_3 == nullPtr
+            then return Nothing
+            else return (Just ret_3)
+    )
 setBody :: Geom -> Maybe Body -> IO ()
 setBody arg_0 arg_1 = (\action_2 -> action_2 arg_0)
         ( ( case arg_1 of
@@ -189,18 +191,23 @@ setSafeGeomData body d = setGeomData body (typeOf d, d)
 -----------------------------------------------------------
 getGeomData :: Geom -> IO a
 getGeomData body =
+
     getRawGeomData body >>= deRefStablePtr . castPtrToStablePtr
+
+-----------------------------------------------------------
 setGeomData :: Geom -> a -> IO ()
 setGeomData body d =
     newStablePtr d
         >>= \stablePtr -> setRawGeomData body (castStablePtrToPtr stablePtr)
 
+-----------------------------------------------------------
 tryGetSafeGeomData :: (Typeable a) => Geom -> IO (Maybe a)
 tryGetSafeGeomData body =
     getGeomData body
         >>= \(t, d) ->
             if t == typeOf d then return (Just d) else return Nothing
 
+-----------------------------------------------------------
 getSafeGeomData :: (Typeable a) => Geom -> IO a
 getSafeGeomData =
     fmap (fromMaybe (error errMsg)) . tryGetSafeGeomData

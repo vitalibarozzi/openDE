@@ -4,14 +4,6 @@ module Physics.ODE.Raw.Types where
 
 import Foreign
 
-type DeltaTime a = a
-
-type Matrix3 = Ptr Float
-
-type Quaternion = (Float, Float, Float, Float) -- TODO make v4
-
-type RawCallback = Ptr () -> Ptr GeomStruct -> Ptr GeomStruct -> IO ()
-
 data WorldStruct
 data SpaceStruct
 data BodyStruct
@@ -19,7 +11,6 @@ data GeomStruct
 data JointStruct
 data JointGroupStruct
 data MassStruct
-
 type Mass = ForeignPtr MassStruct -- whys is this one different?
 type World = Ptr WorldStruct
 type Space = Ptr SpaceStruct
@@ -28,24 +19,62 @@ type Geom = Ptr GeomStruct
 type Joint = Ptr JointStruct
 type JointGroup = Ptr JointGroupStruct
 
+--typedef struct dMass {
+--    dReal mass; // total mass of the rigid body
+--    dVector3 c; // center of gravity position in body frame (x,y,z)
+--    dMatrix3 I; // 3x3 inertia tensor in body frame, about POR
+--} dMass;
+data MassValue = MassValue
+
+type DeltaTime a = a
+type Matrix3 = Ptr Float
+type Quaternion = (Float, Float, Float, Float) -- TODO make v4
+type RawCallback = Ptr () -> Ptr GeomStruct -> Ptr GeomStruct -> IO ()
+
+
 data ContactGeom = ContactGeom
-    { contactPos :: (Float, Float, Float) -- TODO make V3
-    , contactNormal :: (Float, Float, Float) -- TODO make V3
-    , contactDepth :: Float
+    { contactPos     :: (Float, Float, Float) -- TODO make V3
+    , contactNormal  :: (Float, Float, Float) -- TODO make V3
+    , contactDepth   :: Float
     , contactObjects :: (Geom, Geom) -- TODO make v2
     }
     deriving (Show)
 
 data ContactInfo = ContactInfo
     { contactSurface :: Surface
-    , contactGeom :: ContactGeom
-    , contactFDir1 :: (Float, Float, Float) -- TODO make v3
+    , contactGeom    :: ContactGeom
+    , contactFDir1   :: (Float, Float, Float) -- TODO make v3
     }
     deriving (Show)
 
 data Surface = Surface
-    { surfaceMu :: Float
+    {- TODO make it like this
+     -
+     int mode;
+
+     OK dReal mu; 
+     OK dReal mu2;
+
+     dReal rho;
+     dReal rho2;
+     dReal rhoN;
+
+     OK dReal bounce;
+     OK dReal bounce_vel;
+
+     OK dReal soft_erp;
+     OK dReal soft_cfm;
+
+     OK dReal motion1, motion2, motionN;
+
+     OK dReal slip1, slip2;
+};
+-}
+    { surfdaceMode :: [SurfaceMode]
+    , surfaceMu :: Float
     , surfaceMu2 :: Maybe Float
+    -- surfaceRho1
+    -- surfaceRho2
     , surfaceBounce :: Maybe (Float, Float)
     , surfaceSoftERP :: Maybe Float
     , surfaceSoftCFM :: Maybe Float
@@ -79,6 +108,7 @@ data JointType
     | Hinge2
     | Fixed
     | AMotor
+    -- TODO missing a couple?
     deriving (Show, Eq, Ord)
 
 data BodyIndex

@@ -2,17 +2,18 @@ module Physics.ODE.Space where
 
 import Data.Maybe
 import Foreign
-import Physics.ODE.Raw.Types
 import Physics.ODE.Raw.Space
+import Physics.ODE.Raw.Types
 
+-----------------------------------------------------------
 tryGetGeom :: Space -> Int -> IO (Maybe Geom)
-tryGetGeom space nth =
-    do
-        num <- getNumGeoms space
-        if nth > num - 1
-            then return Nothing
-            else fmap Just (getGeomUnsafe space nth)
+tryGetGeom space nth = do
+    num <- getNumGeoms space
+    if nth > num - 1
+        then return Nothing
+        else fmap Just (getGeomUnsafe space nth)
 
+-----------------------------------------------------------
 getGeom :: Space -> Int -> IO Geom
 getGeom space nth =
     fmap (fromMaybe (error msg)) (tryGetGeom space nth)
@@ -21,31 +22,39 @@ getGeom space nth =
         "Physics.ODE.Space.getGeom: Index ("
             ++ show nth
             ++ ") out of range."
+-----------------------------------------------------------
 createSimple :: Maybe Space -> IO Space
-createSimple arg_0 = ( case arg_0 of
+createSimple arg_0 =
+    ( case arg_0 of
         Data.Maybe.Just a_1 -> \action_2 -> action_2 a_1
         Data.Maybe.Nothing -> \action_3 -> action_3 nullPtr
     )
         ( \marshaledArg_4 -> do
             c'createSimpledSimpleSpaceCreate marshaledArg_4
         )
+-----------------------------------------------------------
 createHash :: Maybe Space -> IO Space
-createHash arg_0 = ( case arg_0 of
+createHash arg_0 =
+    ( case arg_0 of
         Data.Maybe.Just a_1 -> \action_2 -> action_2 a_1
         Data.Maybe.Nothing -> \action_3 -> action_3 nullPtr
     )
         ( \marshaledArg_4 -> do
             c'createHashdHashSpaceCreate marshaledArg_4
         )
+-----------------------------------------------------------
 destroySpace :: Space -> IO ()
-destroySpace arg_0 = (\action_1 -> action_1 arg_0)
+destroySpace arg_0 =
+    (\action_1 -> action_1 arg_0)
         ( \marshaledArg_2 -> do
             ret_3 <- c'destroySpacedSpaceDestroy marshaledArg_2
             case () of
                 () -> return ()
         )
+-----------------------------------------------------------
 setLevels :: Space -> Int -> Int -> IO ()
-setLevels arg_0 arg_1 arg_2 = (\action_3 -> action_3 arg_0)
+setLevels arg_0 arg_1 arg_2 =
+    (\action_3 -> action_3 arg_0)
         ( \marshaledArg_4 ->
             (\action_5 -> action_5 arg_1)
                 ( \marshaledArg_6 ->
@@ -57,8 +66,10 @@ setLevels arg_0 arg_1 arg_2 = (\action_3 -> action_3 arg_0)
                         )
                 )
         )
+-----------------------------------------------------------
 getLevels :: Space -> IO (Int, Int)
-getLevels arg_0 = (\action_1 -> action_1 arg_0)
+getLevels arg_0 =
+    (\action_1 -> action_1 arg_0)
         ( \marshaledArg_2 ->
             alloca
                 ( \marshaledArg_3 ->
@@ -80,8 +91,10 @@ getLevels arg_0 = (\action_1 -> action_1 arg_0)
                         )
                 )
         )
+-----------------------------------------------------------
 setCleanup :: Space -> Bool -> IO ()
-setCleanup arg_0 arg_1 = (\action_2 -> action_2 arg_0)
+setCleanup arg_0 arg_1 =
+    (\action_2 -> action_2 arg_0)
         ( \marshaledArg_3 ->
             (\action_4 -> action_4 (fromBool arg_1))
                 ( \marshaledArg_5 -> do
@@ -90,14 +103,18 @@ setCleanup arg_0 arg_1 = (\action_2 -> action_2 arg_0)
                         () -> return ()
                 )
         )
+-----------------------------------------------------------
 getCleanup :: Space -> IO Bool
-getCleanup arg_0 = (\action_1 -> action_1 arg_0)
+getCleanup arg_0 =
+    (\action_1 -> action_1 arg_0)
         ( \marshaledArg_2 -> do
             ret_3 <- c'getCleanupdSpaceGetCleanup marshaledArg_2
             return (toBool ret_3)
         )
+-----------------------------------------------------------
 add :: Space -> Geom -> IO ()
-add arg_0 arg_1 = (\action_2 -> action_2 arg_0)
+add arg_0 arg_1 =
+    (\action_2 -> action_2 arg_0)
         ( \marshaledArg_3 ->
             (\action_4 -> action_4 arg_1)
                 ( \marshaledArg_5 -> do
@@ -106,8 +123,10 @@ add arg_0 arg_1 = (\action_2 -> action_2 arg_0)
                         () -> return ()
                 )
         )
+-----------------------------------------------------------
 remove :: Space -> Geom -> IO ()
-remove arg_0 arg_1 = (\action_2 -> action_2 arg_0)
+remove arg_0 arg_1 =
+    (\action_2 -> action_2 arg_0)
         ( \marshaledArg_3 ->
             (\action_4 -> action_4 arg_1)
                 ( \marshaledArg_5 -> do
@@ -116,8 +135,10 @@ remove arg_0 arg_1 = (\action_2 -> action_2 arg_0)
                         () -> return ()
                 )
         )
+-----------------------------------------------------------
 query :: Space -> Geom -> IO Bool
-query arg_0 arg_1 = (\action_2 -> action_2 arg_0)
+query arg_0 arg_1 =
+    (\action_2 -> action_2 arg_0)
         ( \marshaledArg_3 ->
             (\action_4 -> action_4 arg_1)
                 ( \marshaledArg_5 -> do
@@ -125,13 +146,17 @@ query arg_0 arg_1 = (\action_2 -> action_2 arg_0)
                     return (toBool ret_6)
                 )
         )
+-----------------------------------------------------------
 getNumGeoms :: Space -> IO Int
-getNumGeoms arg_0 = (\action_1 -> action_1 arg_0)
+getNumGeoms arg_0 =
+    (\action_1 -> action_1 arg_0)
         ( \marshaledArg_2 -> do
             c'getNumGeomsdSpaceGetNumGeoms marshaledArg_2
         )
+-----------------------------------------------------------
 getGeomUnsafe :: Space -> Int -> IO Geom
-getGeomUnsafe arg_0 arg_1 = (\action_2 -> action_2 arg_0)
+getGeomUnsafe arg_0 arg_1 =
+    (\action_2 -> action_2 arg_0)
         ( \marshaledArg_3 ->
             (\action_4 -> action_4 arg_1)
                 ( \marshaledArg_5 -> do

@@ -23,6 +23,7 @@ library
       Physics.ODE
       Physics.ODE.Body
       Physics.ODE.Collision
+      Physics.ODE.Error
       Physics.ODE.Geom
       Physics.ODE.Joint
       Physics.ODE.Mass
@@ -74,5 +75,6 @@ test-suite OpenDE-test
     , StateVar
     , array
     , base >=4.7 && <5
+    , hspec
     , linear
   default-language: Haskell2010
