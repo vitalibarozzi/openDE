@@ -17,13 +17,12 @@ import Data.Traversable
 
 main :: IO ()
 main = do
-    ODE.withODE $ \_ -> do
-        {-
+    ODE.withODE $ \w -> do
         b0 <- Body.create w
         b1 <- Body.create w
 
-        m0 <- Object.createSphere Nothing 10
-        m1 <- Object.createSphere Nothing 32
+        m0 <- Objects.createSphere Nothing 10
+        m1 <- Objects.createSphere Nothing 32
 
         j0 <- Joint.createBall w Nothing
 
@@ -40,8 +39,6 @@ main = do
         x_ <- get (Body.position b0)
         y_ <- get (Body.position b1)
         print (x_,y_)
-        putStrLn "Test suite not yet implemented"
-        -}
         hspec do
             testMass
             testBody
@@ -58,23 +55,23 @@ testMass = do
         ww <- runIO $ World.create
         m0 <- runIO $ Mass.create
         __ <- runIO $ ODE.step ww 1
-        v0 <- runIO $ Mass.mass m0
+        v0 <- runIO $ get (Mass.mass m0)
         it "start at 0" (v0 == 0)
-        __ <- runIO $ Mass.adjust m0 0.12
-        v1 <- runIO $ Mass.mass m0
+        __ <- runIO $ Mass.mass m0 $= 0.12
+        v1 <- runIO $ get (Mass.mass m0)
         it "can be adjusted to 1" (v1 == 0.12)
         runIO $ Mass.setZero m0
-        v2 <- runIO $ Mass.mass m0
+        v2 <- runIO $ get (Mass.mass m0)
         it "can be reset to 0 using setZero" (v2 == 0)
         b0 <- runIO $ Body.create ww
         m1 <- runIO $ get (Body.mass b0)
-        v3 <- runIO $ Mass.mass m1
+        v3 <- runIO $ get (Mass.mass m1)
         it "body mass starts at 1" (v3 == 1.0)
-        __ <- runIO $ Mass.adjust m1 1.1
-        v4 <- runIO $ Mass.mass m1
+        __ <- runIO $ Mass.mass m1 $= 1.1
+        v4 <- runIO $ get (Mass.mass m1)
         it "body mass can be adjusted" (v4 == 1.1)
         runIO $ Mass.setZero m1
-        v5 <- runIO $ Mass.mass m1
+        v5 <- runIO $ get (Mass.mass m1)
         it "body mass can be set to 0" (v5 == 0.0)
 
 testCollision :: Spec

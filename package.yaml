@@ -1,19 +1,20 @@
 name:                OpenDE
 version:             0.1.0.0
-github:              "githubuser/OpenDE"
+github:              "vitalibarozzi/OpenDE"
 license:             BSD-3-Clause
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2024 Author name here"
+author:              "Joao Vitor Vitali Barozzi"
+maintainer:          "vitalivitor@gmail.com"
+copyright:           "2024 Joao Vitor Vitali Barozzi"
 
 dependencies:
 - base >= 4.7 && < 5
-- array
-- StateVar
-- linear
+- array # cosntrain it more?
+- StateVar # cosntrain it more?
+- linear # cosntrain it more?
 
 ghc-options:
 - -Wall
+#- -Werror
 - -Wcompat
 - -Widentities
 - -Wincomplete-record-updates

@@ -1,7 +1,6 @@
 module Physics.ODE.Collision (
     collide,
     spaceCollide,
-    infinity
 ) where
 
 import Foreign
@@ -9,10 +8,6 @@ import Physics.ODE.Raw.Collision
 import Physics.ODE.Raw.Hsc
 import Physics.ODE.Raw.Types
 import Control.Monad.IO.Class
-
--- TODO remove it
-infinity :: Float
-infinity = cInfinity
 
 -----------------------------------------------------------
 collide :: (MonadIO m) => Geom -> Geom -> Int -> m [ContactInfo]
