@@ -1,19 +1,19 @@
+{-# LANGUAGE LambdaCase #-}
 module Physics.ODE.Objects (
-    sphereRadius,
-    --sphereSetRadius,
-    --sphereGetRadius,
-    planeParams,
-    --planeSetParams,
-    --planeGetParams,
-    boxLengths,
-    --boxSetLengths,
-    --boxGetLengths,
+    -- createCylinder,
+    -- createRay,
     createSphere,
-    createBox,
     createPlane,
-    --
-    spherePointDepth,
+    createBox,
+    --ray,
+    --rayLength,
+    --cylinderParams
+    sphereRadius,
+    boxLengths,
+    planeParams,
+    --cylinderPointDepth,
     boxPointDepth,
+    spherePointDepth,
     planePointDepth,
     -- * Raw
     module Physics.ODE.Raw.Objects
@@ -25,130 +25,72 @@ import Physics.ODE.Raw.Types
 import Physics.ODE.Utilities
 import Physics.ODE.Raw.Objects
 import Data.StateVar
+import Control.Monad.IO.Class
 
 -----------------------------------------------------------
 sphereRadius :: Geom -> StateVar Float
-sphereRadius = undefined
-sphereGetRadius :: Geom -> IO Float
-sphereSetRadius :: Geom -> Float -> IO ()
-sphereGetRadius = c'dGeomSphereGetRadius
-sphereSetRadius = c'dGeomSphereSetRadius
+sphereRadius geom = do
+    StateVar _get _set
+  where
+    _get = c'dGeomSphereGetRadius geom
+    _set = c'dGeomSphereSetRadius geom
 
 
 -- -------------------------------------------
 boxLengths :: Geom -> StateVar (Float, Float, Float)
-boxLengths = undefined
-boxSetLengths :: Geom -> Float -> Float -> Float -> IO ()
-boxSetLengths = c'dGeomBoxSetLengths
-boxGetLengths :: Geom -> IO ((Float, Float, Float))
-boxGetLengths geom = 
-    allocaArray
-        4
-        ( \arg -> do
-            c'dGeomBoxGetLengths geom arg
-            peekVector3 arg
+boxLengths geom = do
+    StateVar _get _set
+  where
+    _set (a,b,c) = c'dGeomBoxSetLengths geom a b c 
+    _get =
+        allocaArray
+            4
+            ( \arg -> do
+                c'dGeomBoxGetLengths geom arg
+                peekVector3 arg
         )
 
 -----------------------------------------------------------
 planeParams :: Geom -> StateVar (Float, Float, Float, Float)
-planeParams = undefined
-planeSetParams ::
-    Geom ->
-    Float ->
-    Float ->
-    Float ->
-    Float ->
-    IO ()
-planeSetParams = c'dGeomPlaneSetParams
-planeGetParams :: Geom -> IO ((Float, Float, Float, Float))
-planeGetParams geom =
-    allocaArray
-        4
-        ( \arr -> do
-            c'dGeomPlaneGetParams geom arr
-            peekVector4 arr
-        )
+planeParams geom = do
+    StateVar _get _set
+  where
+    _set (a,b,c,d) = c'dGeomPlaneSetParams geom a b c d
+    _get = 
+        allocaArray
+            4
+            ( \arr -> do
+                c'dGeomPlaneGetParams geom arr
+                peekVector4 arr
+            )
 
 -----------------------------------------------------------
 planePointDepth ::
+    (MonadIO m) => 
     Geom ->
     Float ->
     Float ->
     Float ->
-    IO Float
-planePointDepth = c'dGeomPlanePointDepth
+    m Float
+planePointDepth a b c d = 
+    liftIO (c'dGeomPlanePointDepth a b c d)
 
 -----------------------------------------------------------
 boxPointDepth ::
+    (MonadIO m) => 
     Geom ->
     Float ->
     Float ->
     Float ->
-    IO Float
-boxPointDepth = c'dGeomBoxPointDepth
+    m Float
+boxPointDepth a b c d = 
+    liftIO (c'dGeomBoxPointDepth a b c d)
 
 ------------------------------------------------
-------------------------------------------------
-------------------------------------------------
-
-createSphere :: Maybe Space -> Float -> IO Geom
-createSphere = \arg_0 arg_1 ->
-    ( case arg_0 of
-        Data.Maybe.Just a_2 -> \action_3 -> action_3 a_2
-        Data.Maybe.Nothing -> \action_4 -> action_4 nullPtr
-    )
-        ( \marshaledArg_5 ->
-            (\action_6 -> action_6 arg_1)
-                ( \marshaledArg_7 -> do
-                    c'dCreateSphere marshaledArg_5 marshaledArg_7
-                )
-        )
-
-spherePointDepth ::
-    Geom ->
-    Float ->
-    Float ->
-    Float ->
-    IO Float
-spherePointDepth = \arg_0 arg_1 arg_2 arg_3 ->
-    (\action_4 -> action_4 arg_0)
-        ( \marshaledArg_5 ->
-            (\action_6 -> action_6 arg_1)
-                ( \marshaledArg_7 ->
-                    (\action_8 -> action_8 arg_2)
-                        ( \marshaledArg_9 ->
-                            (\action_10 -> action_10 arg_3)
-                                ( \marshaledArg_11 -> do
-                                    c'dGeomSpherePointDepth marshaledArg_5 marshaledArg_7 marshaledArg_9 marshaledArg_11
-                                )
-                        )
-                )
-        )
-
--- -------------------------------------------
-createBox ::
-    Maybe Space ->
-    Float ->
-    Float ->
-    Float ->
-    IO Geom
-createBox = \arg_0 arg_1 arg_2 arg_3 ->
-    ( case arg_0 of
-        Data.Maybe.Just a_4 -> \action_5 -> action_5 a_4
-        Data.Maybe.Nothing -> \action_6 -> action_6 nullPtr
-    )
-        ( \marshaledArg_7 ->
-            (\action_8 -> action_8 arg_1)
-                ( \marshaledArg_9 ->
-                    (\action_10 -> action_10 arg_2)
-                        ( \marshaledArg_11 ->
-                            (\action_12 -> action_12 arg_3)
-                                ( \marshaledArg_13 -> do
-                                    c'dCreateBox marshaledArg_7 marshaledArg_9 marshaledArg_11 marshaledArg_13
-                                )
-                        )
-                )
-        )
+createSphere :: (MonadIO m) => Maybe Space -> Float -> m Geom
+createSphere = \case
+    Nothing -> \radius -> liftIO (c'dCreateSphere nullPtr radius)
+    Just ptr -> \radius -> liftIO (c'dCreateSphere ptr radius)
 
 -- -------------------------------------------
 createPlane ::
@@ -158,26 +100,28 @@ createPlane ::
     Float ->
     Float ->
     IO Geom
-createPlane = \arg_0 arg_1 arg_2 arg_3 arg_4 ->
-    ( case arg_0 of
-        Data.Maybe.Just a_5 -> \action_6 -> action_6 a_5
-        Data.Maybe.Nothing -> \action_7 -> action_7 nullPtr
-    )
-        ( \marshaledArg_8 ->
-            (\action_9 -> action_9 arg_1)
-                ( \marshaledArg_10 ->
-                    (\action_11 -> action_11 arg_2)
-                        ( \marshaledArg_12 ->
-                            (\action_13 -> action_13 arg_3)
-                                ( \marshaledArg_14 ->
-                                    (\action_15 -> action_15 arg_4)
-                                        ( \marshaledArg_16 -> do
-                                            c'dCreatePlane marshaledArg_8 marshaledArg_10 marshaledArg_12 marshaledArg_14 marshaledArg_16
-                                        )
-                                )
-                        )
-                )
-        )
+createPlane = \case
+    Just a_5 -> \arg_1 arg_2 arg_3 arg_4 -> c'dCreatePlane  a_5 arg_1 arg_2 arg_3 arg_4
+    Nothing -> \arg_1 arg_2 arg_3 arg_4 -> c'dCreatePlane  nullPtr arg_1 arg_2 arg_3 arg_4
 
---  FIXME: Do the rest.
---  ... what rest?
+-- -------------------------------------------
+createBox ::
+    Maybe Space ->
+    Float ->
+    Float ->
+    Float ->
+    IO Geom
+createBox = \case 
+    Just a_4 -> \arg_1 arg_2 arg_3 ->c'dCreateBox  a_4 arg_1 arg_2 arg_3
+    Nothing -> \arg_1 arg_2 arg_3 ->c'dCreateBox nullPtr arg_1 arg_2 arg_3
+
+------------------------------------------------
+spherePointDepth ::
+    (MonadIO m) =>
+    Geom ->
+    Float ->
+    Float ->
+    Float ->
+    m Float
+spherePointDepth a b c d = 
+    liftIO (c'dGeomSpherePointDepth a b c d)

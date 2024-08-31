@@ -6,17 +6,17 @@ cabal-version: 2.2
 
 name:           OpenDE
 version:        0.1.0.0
-homepage:       https://github.com/githubuser/OpenDE#readme
-bug-reports:    https://github.com/githubuser/OpenDE/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2024 Author name here
+homepage:       https://github.com/vitalibarozzi/OpenDE#readme
+bug-reports:    https://github.com/vitalibarozzi/OpenDE/issues
+author:         Joao Vitor Vitali Barozzi
+maintainer:     vitalivitor@gmail.com
+copyright:      2024 Joao Vitor Vitali Barozzi
 license:        BSD-3-Clause
 build-type:     Simple
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/OpenDE
+  location: https://github.com/vitalibarozzi/OpenDE
 
 library
   exposed-modules:

@@ -2,13 +2,13 @@ ODE is an open source, high performance library for simulating rigid body dynami
 
 Forked from https://hackage.haskell.org/package/HODE, then started cleaning it up and adding StateVar API to match both OpenGL and OpenAL.
 
+[ 90%] Objects
+[ 70%] Body
+[ 70%] Collision
+[ 70%] Rotation
+[ 70%] World
+[ 50%] Mass
 [ -- ] Geom
 [ -- ] Joint
 [ -- ] Space
-[ 50%] Objects
-[ 50%] Mass
-[ 80%] Body
-[ 80%] Collision
-[ 80%] Rotation
-[ 80%] World
 

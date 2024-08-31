@@ -33,6 +33,7 @@ import Physics.ODE.Raw.Body
 import qualified Physics.ODE.Mass as Mass (create)
 import Physics.ODE.Raw.Types
 import Physics.ODE.Utilities
+import Control.Monad.IO.Class
 
 -----------------------------------------------------------
 create :: World -> IO Body
@@ -41,10 +42,10 @@ create =
     createdBodyCreate
 
 -----------------------------------------------------------
-destroy :: Body -> IO ()
+destroy :: (MonadIO m) => Body -> m ()
 {-# INLINE destroy #-}
 destroy =
-    destroyBodydBodyDestroy
+    liftIO . destroyBodydBodyDestroy
 
 -----------------------------------------------------------
 addForce :: Body -> Float -> Float -> Float -> IO ()
