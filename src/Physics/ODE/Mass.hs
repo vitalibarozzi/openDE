@@ -58,7 +58,7 @@ add m f =
 -----------------------------------------------------------
 setBox:: (MonadIO m) => Mass -> Float -> Float -> Float -> Float -> m ()
 setBox m x y z w = 
-    liftIO $ withForeignPtr m (\m -> c'massSetBox m x y z w)
+    liftIO $ withForeignPtr m (\k -> c'massSetBox k x y z w)
 
 -----------------------------------------------------------
 setBoxTotal:: (MonadIO m) => Mass -> Float -> Float -> Float -> Float -> m ()

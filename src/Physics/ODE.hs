@@ -3,7 +3,6 @@ module Physics.ODE (
     initODE,
     closeODE,
     withODE,
-    withODE_,
     step,
     quickStep,
 )
@@ -31,7 +30,7 @@ closeODE =
 
 {- | Wrapper around initODE+closeODE with `bracket` and a
 convinience `World` created, although other worlds may be
-created subsequently if needed.
+created subsequently.
 -}
 withODE :: (MonadIO m) => (World.World -> IO ()) -> m ()
 {-# INLINEABLE withODE #-}
@@ -40,19 +39,8 @@ withODE k =
         ( bracket
             initODE
             (\() -> closeODE)
-            (\() -> k =<< create)
+            (\() -> create >>= k)
         )
-
------------------------------------------------------------
--- wtf?
-withODE_ :: (MonadIO m) => (World.World -> m ()) -> m ()
-{-# INLINEABLE withODE_ #-}
-withODE_ k = do
-    liftIO initODE
-    k =<< liftIO create
-    liftIO closeODE
-
--- TODO add comments about the difference between the 2
 
 -----------------------------------------------------------
 step :: (MonadIO m) => World -> DeltaTime Float -> m ()

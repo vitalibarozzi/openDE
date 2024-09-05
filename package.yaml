@@ -7,22 +7,22 @@ maintainer:          "vitalivitor@gmail.com"
 copyright:           "2024 Joao Vitor Vitali Barozzi"
 
 dependencies:
-- base >= 4.7 && < 5
-- array # cosntrain it more?
-- StateVar # cosntrain it more?
-- linear # cosntrain it more?
+- base     >= 4.9 && < 5
+- array    >= 0.5
+- StateVar >= 1.2
 
 ghc-options:
 - -Wall
-#- -Werror
+- -Werror
 - -Wcompat
 - -Widentities
 - -Wincomplete-record-updates
 - -Wincomplete-uni-patterns
-- -Wmissing-export-lists
 - -Wmissing-home-modules
 - -Wpartial-fields
 - -Wredundant-constraints
+- -Wno-missing-export-lists
+- -Wno-unused-matches
 
 library:
   source-dirs: src

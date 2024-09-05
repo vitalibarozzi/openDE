@@ -3,7 +3,6 @@ import Physics.ODE.Body as Body
 import Physics.ODE.World as World
 import Physics.ODE as ODE
 import Physics.ODE.Collision as Collision
-import Physics.ODE as Body
 import Physics.ODE.Joint as Joint
 import Physics.ODE.Objects as Objects
 import Physics.ODE.Geom as Geom
@@ -12,7 +11,6 @@ import Physics.ODE.Raw.Types
 import Data.StateVar
 import Test.Hspec
 import Control.Monad
-import Data.Traversable
 
 
 main :: IO ()

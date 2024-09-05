@@ -18,7 +18,6 @@ module Physics.ODE.Objects (
     module Physics.ODE.Raw.Objects
 ) where
 
-import Data.Maybe
 import Foreign
 import Physics.ODE.Raw.Types
 import Physics.ODE.Utilities

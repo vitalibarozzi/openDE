@@ -49,15 +49,14 @@ library
       Paths_OpenDE
   hs-source-dirs:
       src
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  ghc-options: -Wall -Werror -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-missing-export-lists -Wno-unused-matches
   extra-libraries:
       ode
       stdc++
   build-depends:
-      StateVar
-    , array
-    , base >=4.7 && <5
-    , linear
+      StateVar >=1.2
+    , array >=0.5
+    , base >=4.9 && <5
   default-language: Haskell2010
 
 test-suite OpenDE-test
@@ -69,12 +68,11 @@ test-suite OpenDE-test
       Paths_OpenDE
   hs-source-dirs:
       test
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wall -Werror -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-missing-export-lists -Wno-unused-matches -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       OpenDE
-    , StateVar
-    , array
-    , base >=4.7 && <5
+    , StateVar >=1.2
+    , array >=0.5
+    , base >=4.9 && <5
     , hspec
-    , linear
   default-language: Haskell2010
