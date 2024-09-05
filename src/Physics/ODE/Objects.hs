@@ -1,21 +1,20 @@
 {-# LANGUAGE LambdaCase #-}
 module Physics.ODE.Objects (
-    -- createCylinder,
-    -- createRay,
+    createCylinder,
+    createRay,
     createSphere,
     createPlane,
     createBox,
-    --ray,
-    --rayLength,
-    --cylinderParams
+    ray,
+    rayLength,
+    cylinderParams,
     sphereRadius,
     boxLengths,
     planeParams,
-    --cylinderPointDepth,
+    cylinderPointDepth,
     boxPointDepth,
     spherePointDepth,
     planePointDepth,
-    -- * Raw
     module Physics.ODE.Raw.Objects
 ) where
 
@@ -27,8 +26,25 @@ import Physics.ODE.Raw.Objects
 import Data.StateVar
 import Control.Monad.IO.Class
 
------------------------------------------------------------
+
+------------------------------------------------------------
+ray :: Geom -> StateVar (Float,Float,Float,Float,Float,Float)
+{-# INLINE ray #-}
+ray geom = do
+    StateVar _get _set
+  where
+    _set (a,b,c,d,e,f) = c'dGeomRaySet geom a b c d e f
+    _get =
+        allocaArray
+            4
+            ( \arg -> do
+                c'dGeomRayGet geom arg
+                peekVector6 arg
+        )
+
+------------------------------------------------------------
 sphereRadius :: Geom -> StateVar Float
+{-# INLINE sphereRadius #-}
 sphereRadius geom = do
     StateVar _get _set
   where
@@ -36,8 +52,9 @@ sphereRadius geom = do
     _set = c'dGeomSphereSetRadius geom
 
 
--- -------------------------------------------
+------------------------------------------------------------
 boxLengths :: Geom -> StateVar (Float, Float, Float)
+{-# INLINE boxLengths #-}
 boxLengths geom = do
     StateVar _get _set
   where
@@ -50,8 +67,18 @@ boxLengths geom = do
                 peekVector3 arg
         )
 
------------------------------------------------------------
+------------------------------------------------------------
+rayLength :: Geom -> StateVar Float
+{-# INLINE rayLength #-}
+rayLength geom = do
+    StateVar _get _set
+  where
+    _set = c'dGeomRaySetLength geom
+    _get = c'dGeomRayGetLength geom
+
+------------------------------------------------------------
 planeParams :: Geom -> StateVar (Float, Float, Float, Float)
+{-# INLINE planeParams #-}
 planeParams geom = do
     StateVar _get _set
   where
@@ -64,7 +91,22 @@ planeParams geom = do
                 peekVector4 arr
             )
 
------------------------------------------------------------
+------------------------------------------------------------
+cylinderParams :: Geom -> StateVar (Float, Float)
+{-# INLINE cylinderParams #-}
+cylinderParams geom = do
+    StateVar _get _set
+  where
+    _set (a,b) = c'dGeomCCylinderSetParams geom a b
+    _get = 
+        allocaArray
+            4
+            ( \arr -> do
+                c'dGeomCCylinderGetParams geom arr
+                peekVector2 arr
+            )
+
+------------------------------------------------------------
 planePointDepth ::
     (MonadIO m) => 
     Geom ->
@@ -72,10 +114,24 @@ planePointDepth ::
     Float ->
     Float ->
     m Float
+{-# INLINE planePointDepth #-}
 planePointDepth a b c d = 
     liftIO (c'dGeomPlanePointDepth a b c d)
 
------------------------------------------------------------
+
+------------------------------------------------------------
+cylinderPointDepth ::
+    (MonadIO m) => 
+    Geom ->
+    Float ->
+    Float ->
+    Float ->
+    m Float
+{-# INLINE cylinderPointDepth #-}
+cylinderPointDepth a b c d = 
+    liftIO (c'dGeomCCylinderPointDepth a b c d)
+
+------------------------------------------------------------
 boxPointDepth ::
     (MonadIO m) => 
     Geom ->
@@ -83,39 +139,59 @@ boxPointDepth ::
     Float ->
     Float ->
     m Float
+{-# INLINE boxPointDepth #-}
 boxPointDepth a b c d = 
     liftIO (c'dGeomBoxPointDepth a b c d)
 
-------------------------------------------------
+------------------------------------------------------------
 createSphere :: (MonadIO m) => Maybe Space -> Float -> m Geom
+{-# INLINE createSphere #-}
 createSphere = \case
-    Nothing -> \radius -> liftIO (c'dCreateSphere nullPtr radius)
-    Just ptr -> \radius -> liftIO (c'dCreateSphere ptr radius)
+    Nothing  -> liftIO . c'dCreateSphere nullPtr
+    Just ptr -> liftIO . c'dCreateSphere ptr
 
--- -------------------------------------------
+------------------------------------------------------------
+createCylinder :: (MonadIO m) => Maybe Space -> Float -> Float -> m Geom
+{-# INLINE createCylinder #-}
+createCylinder = \case
+    Nothing  -> \a b -> liftIO (c'dCreateCCylinder nullPtr a b)
+    Just ptr -> \a b -> liftIO (c'dCreateCCylinder ptr a b)
+
+------------------------------------------------------------
+createRay :: (MonadIO m) => Maybe Space -> Float -> m Geom
+{-# INLINE createRay #-}
+createRay = \case
+    Nothing  -> liftIO . c'dCreateRay nullPtr
+    Just ptr -> liftIO . c'dCreateRay ptr
+
+------------------------------------------------------------
 createPlane ::
+    (MonadIO m) =>
     Maybe Space ->
     Float ->
     Float ->
     Float ->
     Float ->
-    IO Geom
+    m Geom
+{-# INLINE createPlane #-}
 createPlane = \case
-    Just a_5 -> \arg_1 arg_2 arg_3 arg_4 -> c'dCreatePlane  a_5 arg_1 arg_2 arg_3 arg_4
-    Nothing -> \arg_1 arg_2 arg_3 arg_4 -> c'dCreatePlane  nullPtr arg_1 arg_2 arg_3 arg_4
+    Just a_5 -> \a b c d -> liftIO (c'dCreatePlane a_5 a b c d)
+    Nothing  -> \a b c d -> liftIO (c'dCreatePlane nullPtr a b c d)
 
--- -------------------------------------------
+------------------------------------------------------------
 createBox ::
+    (MonadIO m) =>
     Maybe Space ->
     Float ->
     Float ->
     Float ->
-    IO Geom
+    m Geom
+{-# INLINE createBox #-}
 createBox = \case 
-    Just a_4 -> \arg_1 arg_2 arg_3 ->c'dCreateBox  a_4 arg_1 arg_2 arg_3
-    Nothing -> \arg_1 arg_2 arg_3 ->c'dCreateBox nullPtr arg_1 arg_2 arg_3
+    Just a_4 -> \a b c -> liftIO (c'dCreateBox a_4 a b c) 
+    Nothing  -> \a b c -> liftIO (c'dCreateBox nullPtr a b c)
 
-------------------------------------------------
+------------------------------------------------------------
 spherePointDepth ::
     (MonadIO m) =>
     Geom ->
@@ -123,5 +199,6 @@ spherePointDepth ::
     Float ->
     Float ->
     m Float
+{-# INLINE spherePointDepth #-}
 spherePointDepth a b c d = 
     liftIO (c'dGeomSpherePointDepth a b c d)

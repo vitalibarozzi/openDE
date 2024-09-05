@@ -2,9 +2,11 @@
 
 module Physics.ODE.Utilities (
     forceFinalization,
+    peekVector2,
     peekVector3,
     pokeVector3,
     peekVector4,
+    peekVector6,
     peekMatrix,
 )
 where
@@ -19,6 +21,13 @@ forceFinalization :: (MonadIO m) => ForeignPtr a -> m ()
 {-# INLINE forceFinalization #-}
 forceFinalization =
     liftIO . finalizeForeignPtr
+
+-----------------------------------------------------------
+peekVector2 :: (MonadFail m, MonadIO m, Storable a) => Ptr a -> m (a, a)
+{-# INLINE peekVector2 #-}
+peekVector2 ptr = do
+    [x, y] <- liftIO (peekArray 2 ptr)
+    return (x, y)
 
 -----------------------------------------------------------
 peekVector3 :: (MonadFail m, MonadIO m, Storable a) => Ptr a -> m (a, a, a)
@@ -39,6 +48,13 @@ peekVector4 :: (MonadFail m, MonadIO m, Storable a) => Ptr a -> m (a, a, a, a)
 peekVector4 ptr = do
     [x, y, z, n] <- liftIO (peekArray 4 ptr)
     return (x, y, z, n)
+
+-----------------------------------------------------------
+peekVector6 :: (MonadFail m, MonadIO m, Storable a) => Ptr a -> m (a, a, a, a, a, a)
+{-# INLINE peekVector6 #-}
+peekVector6 ptr = do
+    [x, y, z, d, e, f] <- liftIO (peekArray 6 ptr)
+    return (x, y, z, d, e, f)
 
 -----------------------------------------------------------
 peekMatrix :: (MonadIO m, Storable a) => (Int, Int) -> Ptr a -> m (Array (Int, Int) a)
