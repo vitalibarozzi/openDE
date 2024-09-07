@@ -2,9 +2,9 @@ name:                OpenDE
 version:             0.1.0.0
 github:              "vitalibarozzi/OpenDE"
 license:             BSD-3-Clause
-author:              "Joao Vitor Vitali Barozzi"
+author:              "João Vítor Vitali Barozzi"
 maintainer:          "vitalivitor@gmail.com"
-copyright:           "2024 Joao Vitor Vitali Barozzi"
+copyright:           "2024 João Vítor Vitali Barozzi"
 
 dependencies:
 - base     >= 4.9 && < 5

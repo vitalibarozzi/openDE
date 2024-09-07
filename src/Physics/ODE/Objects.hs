@@ -32,6 +32,7 @@ import Control.Monad.IO.Class
 
 
 ------------------------------------------------------------
+-- | Get/Set the length of the given ray.
 ray :: Geom -> StateVar (Float,Float,Float,Float,Float,Float)
 {-# INLINE ray #-}
 ray geom = do
@@ -49,6 +50,15 @@ ray geom = do
         return (x,y,z,w,k,l)
 
 ------------------------------------------------------------
+-- | Set or Get parameters for the ray which determine which 
+-- hit between the ray geom and a trimesh geom is returned 
+-- from dCollide. FirstContact determines if dCollide returns 
+-- the first collision detected between the ray geom and a trimesh 
+-- geom, even if that collision is not the nearest to the ray start 
+-- position. BackfaceCull determines if dCollide returns a collision 
+-- between the ray geom and a trimesh geom when the collision is 
+-- between the ray and a backfacing triangle. Default values are 
+-- FirstContact = 0, BackfaceCull = 0 (both false). 
 rayParams :: Geom -> StateVar (Int,Int)
 {-# INLINE rayParams #-}
 rayParams geom = do
@@ -66,6 +76,7 @@ rayParams geom = do
         return (x,y)
 
 ------------------------------------------------------------
+-- | Set/Get the parameters of the given plane.
 planeParams :: Geom -> StateVar (Float, Float, Float, Float)
 {-# INLINE planeParams #-}
 planeParams geom = do
@@ -81,6 +92,7 @@ planeParams geom = do
             )
 
 ------------------------------------------------------------
+-- | Set/Get the parameters of the given cylinder.
 cylinderParams :: Geom -> StateVar (Float, Float)
 {-# INLINE cylinderParams #-}
 cylinderParams geom = do
@@ -98,6 +110,7 @@ cylinderParams geom = do
         return (x,y)
 
 ------------------------------------------------------------
+-- | Set/Get the parameters of the given capsule.
 capsuleParams :: Geom -> StateVar (Float, Float)
 {-# INLINE capsuleParams #-}
 capsuleParams geom = do
@@ -115,6 +128,15 @@ capsuleParams geom = do
         return (x,y)
 
 ------------------------------------------------------------
+-- | ClosestHit determines if dCollide returns the closest 
+-- hit between the ray and a trimesh geom. If ClosestHit is 
+-- false, the hit returned by dCollide may not be the nearest 
+-- collision to the ray position. This parameter is ignored 
+-- if FirstContact is set to true in dGeomRaySetParams(). If 
+-- ClosestHit is set to true and BackfaceCull is set to false, 
+-- the hit returned by dCollide may be between the ray and a 
+-- backfacing triangle. The default value 
+-- is ClosestHit = 0 (false). 
 rayClosestHit :: Geom -> StateVar Int
 {-# INLINE rayClosestHit #-}
 rayClosestHit geom = do
@@ -124,6 +146,7 @@ rayClosestHit geom = do
     _get = c'dGeomRayGetClosestHit geom
 
 ------------------------------------------------------------
+-- | Set/Get the radius of the given sphere. 
 sphereRadius :: Geom -> StateVar Float
 {-# INLINE sphereRadius #-}
 sphereRadius geom = do
@@ -133,6 +156,7 @@ sphereRadius geom = do
     _set = c'dGeomSphereSetRadius geom
 
 ------------------------------------------------------------
+-- | Set/Get the side lengths of the given box.
 boxLengths :: Geom -> StateVar (Float, Float, Float)
 {-# INLINE boxLengths #-}
 boxLengths geom = do
@@ -148,6 +172,7 @@ boxLengths geom = do
         )
 
 ------------------------------------------------------------
+-- | Set/Get the length of the given ray.
 rayLength :: Geom -> StateVar Float
 {-# INLINE rayLength #-}
 rayLength geom = do
@@ -157,6 +182,15 @@ rayLength geom = do
     _get = c'dGeomRayGetLength geom
 
 ------------------------------------------------------------
+-- | Return the depth of the point (x,y,z) in the given plane. 
+-- Points inside the geom will have positive depth, points 
+-- outside it will have negative depth, and points on the 
+-- surface will have zero depth.
+-- Note that planes in ODE are in fact not really planes: they 
+-- are half-spaces. Anything that is moving inside the half-space 
+-- will be ejected out from it. This means that planes are only 
+-- planes from the perspective of one side. If you want your 
+-- planes to be reversed, multiply the whole plane equation by -1. 
 planePointDepth ::
     (MonadIO m) => 
     Float ->
@@ -170,6 +204,10 @@ planePointDepth b c d a =
 
 
 ------------------------------------------------------------
+-- | Return the depth of the point (x,y,z) in the given 
+-- capsule. Points inside the geom will have positive depth, 
+-- points outside it will have negative depth, and points on 
+-- the surface will have zero depth.
 capsulePointDepth ::
     (MonadIO m) => 
     Float ->
@@ -182,6 +220,10 @@ capsulePointDepth b c d a =
     liftIO (c'dGeomCapsulePointDepth a b c d)
 
 ------------------------------------------------------------
+-- | Return the depth of the point (x,y,z) in the given box. 
+-- Points inside the geom will have positive depth, points 
+-- outside it will have negative depth, and points on the 
+-- surface will have zero depth. 
 boxPointDepth ::
     (MonadIO m) => 
     Float ->
@@ -194,6 +236,9 @@ boxPointDepth b c d a =
     liftIO (c'dGeomBoxPointDepth a b c d)
 
 ------------------------------------------------------------
+-- | Create a sphere geom of the given radius, and return its 
+-- ID. If space is nonzero, insert it into that space. The 
+-- point of reference for a sphere is its center. 
 createSphere :: 
     (MonadIO m) => 
     Maybe Space -> 
@@ -205,6 +250,9 @@ createSphere = \case
     Just ptr -> liftIO . c'dCreateSphere ptr
 
 ------------------------------------------------------------
+-- | Create a cylinder geom of the given parameters, and 
+-- return its ID. If space is nonzero, insert it into that 
+-- space. 
 createCylinder :: 
      (MonadIO m) => 
      Maybe Space -> 
@@ -217,6 +265,16 @@ createCylinder = \case
     Just ptr -> \a b -> liftIO (c'dCreateCylinder ptr a b)
 
 ------------------------------------------------------------
+-- | Create a capsule geom of the given parameters, and 
+-- return its ID. If space is nonzero, insert it into that 
+-- space.
+-- A capsule is like a normal cylinder except it has 
+-- half-sphere caps at its ends. This feature makes the 
+-- internal collision detection code particularly fast and 
+-- accurate. The cylinder's length, not counting the caps, 
+-- is given by length. The cylinder is aligned along the 
+-- geom's local Z axis. The radius of the caps, and of the 
+-- cylinder itself, is given by radius. 
 createCapsule :: 
     (MonadIO m) => 
     Maybe Space -> 
@@ -229,6 +287,8 @@ createCapsule = \case
     Just ptr -> \a b -> liftIO (c'dCreateCapsule ptr a b)
 
 ------------------------------------------------------------
+-- | Create a ray geom of the given length, and return its 
+-- ID. If space is nonzero, insert it into that space. 
 createRay :: 
     (MonadIO m) => 
     Maybe Space -> 
@@ -240,6 +300,16 @@ createRay = \case
     Just ptr -> liftIO . c'dCreateRay ptr
 
 ------------------------------------------------------------
+-- | Create a plane geom of the given parameters, and return 
+-- its ID. If space is nonzero, insert it into that space. 
+-- The plane equation is a*x+b*y+c*z = d The plane's normal 
+-- vector is (a,b,c), and it must have length 1. Planes are 
+-- non-placeable geoms. This means that, unlike placeable 
+-- geoms, planes do not have an assigned position and rotation. 
+-- This means that the parameters (a,b,c,d) are always in global 
+-- coordinates. In other words it is assumed that the plane is 
+-- always part of the static environment and not tied to any 
+-- movable object. 
 createPlane ::
     (MonadIO m) =>
     Maybe Space ->
@@ -254,6 +324,10 @@ createPlane = \case
     Nothing  -> \a b c d -> liftIO (c'dCreatePlane nullPtr a b c d)
 
 ------------------------------------------------------------
+-- | Create a box geom of the given x/y/z side lengths 
+-- (lx,ly,lz), and return its ID. If space is nonzero, insert 
+-- it into that space. The point of reference for a box is 
+-- its center. 
 createBox ::
     (MonadIO m) =>
     Maybe Space ->
@@ -267,6 +341,10 @@ createBox = \case
     Nothing  -> \a b c -> liftIO (c'dCreateBox nullPtr a b c)
 
 ------------------------------------------------------------
+-- | Return the depth of the point (x,y,z) in the given 
+-- sphere. Points inside the geom will have positive depth, 
+-- points outside it will have negative depth, and points on 
+-- the surface will have zero depth. 
 spherePointDepth ::
     (MonadIO m) =>
     Float ->

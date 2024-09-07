@@ -8,9 +8,9 @@ name:           OpenDE
 version:        0.1.0.0
 homepage:       https://github.com/vitalibarozzi/OpenDE#readme
 bug-reports:    https://github.com/vitalibarozzi/OpenDE/issues
-author:         Joao Vitor Vitali Barozzi
+author:         João Vítor Vitali Barozzi
 maintainer:     vitalivitor@gmail.com
-copyright:      2024 Joao Vitor Vitali Barozzi
+copyright:      2024 João Vítor Vitali Barozzi
 license:        BSD-3-Clause
 build-type:     Simple
 
