@@ -1,4 +1,5 @@
 {-# LANGUAGE BlockArguments #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 import Physics.ODE.Body as Body
 import Physics.ODE.World as World
 import Physics.ODE as ODE
@@ -16,6 +17,18 @@ import Control.Monad
 main :: IO ()
 main = do
     ODE.withODE $ \w -> do
+        () <- setup w
+        hspec do
+            testObjects
+            testMass
+            testBody
+            testCollision
+            testGeom
+            testJoint
+            testRotation
+            testSpace
+  where
+    setup w = do
         b0 <- Body.create w
         b1 <- Body.create w
 
@@ -37,15 +50,44 @@ main = do
         x_ <- get (Body.position b0)
         y_ <- get (Body.position b1)
         print (x_,y_)
-        hspec do
-            testMass
-            testBody
-            testCollision
-            testGeom
-            testJoint
-            testObjects
-            testRotation
-            testSpace
+
+testObjects :: Spec
+testObjects = do
+    context "Objects.hs" do 
+        context "Plane" do
+            doesNotSegfaults "createPlane"         (createPlane Nothing 1 1 1 1)
+            doesNotSegfaults "planeParams (get)"   (createPlane Nothing 1 1 1 1 >>= get . planeParams)
+            doesNotSegfaults "planeParams (set)"   (createPlane Nothing 1 1 1 1 >>= flip ($=) (0,0,0,0) . planeParams)
+            doesNotSegfaults "planePointDepth"     (createPlane Nothing 1 1 1 1 >>= planePointDepth 1 1 1)
+        context "Box" do
+            doesNotSegfaults "createBox"           (createBox Nothing 1 1 1)
+            doesNotSegfaults "boxLengths (get)"    (createBox Nothing 1 1 1 >>= get . boxLengths)
+            doesNotSegfaults "boxLengths (set)"    (createBox Nothing 1 1 1 >>= flip ($=) (0,0,0) . boxLengths)
+            doesNotSegfaults "boxPointDepth"       (createBox Nothing 1 1 1 >>= boxPointDepth 1 1 1)
+        context "Sphere" do
+            doesNotSegfaults "createSphere"        (createSphere Nothing 1)
+            doesNotSegfaults "sphereRadius (get)"  (createSphere Nothing 1 >>= get . sphereRadius)
+            doesNotSegfaults "sphereRadius (set)"  (createSphere Nothing 1 >>= flip ($=) 1 . sphereRadius)
+            doesNotSegfaults "spherePointDepth"    (createSphere Nothing 1 >>= spherePointDepth 1 1 1)
+        context "Cylinder" do
+            doesNotSegfaults "createCylinder"      (createCylinder Nothing 1 1)
+            doesNotSegfaults "cylinderParams"      (createCylinder Nothing 1 1 >>= get . cylinderParams)
+        context "Capsule" do
+            doesNotSegfaults "createCapsule"       (createCapsule Nothing 1 1)
+            doesNotSegfaults "capsulePointDepth"   (createCapsule Nothing 1 1 >>= capsulePointDepth 1 1 1)
+            doesNotSegfaults "capsuleParams (get)" (createCapsule Nothing 1 1 >>= get . capsuleParams)
+            doesNotSegfaults "capsuleParams (set)" (createCapsule Nothing 1 1 >>= flip ($=) (0,0) . capsuleParams)
+        context "Ray" do
+            doesNotSegfaults "createRay"           (createRay Nothing 1)
+            doesNotSegfaults "rayLength (get)"     (createRay Nothing 1 >>= get . rayLength)
+            doesNotSegfaults "rayLength (set)"     (createRay Nothing 1 >>= flip ($=) 1 . rayLength)
+            doesNotSegfaults "ray (get)"           (createRay Nothing 1 >>= get . ray)
+            doesNotSegfaults "ray (set)"           (createRay Nothing 1 >>= flip ($=) (1,1,1,1,1,1) . ray)
+            doesNotSegfaults "rayClosestHit (get)" (createRay Nothing 1 >>= get . rayClosestHit)
+            doesNotSegfaults "rayClosestHit (set)" (createRay Nothing 1 >>= flip ($=) 1 . rayClosestHit)
+            doesNotSegfaults "rayParams (get)"     (createRay Nothing 1 >>= get . rayParams)
+            doesNotSegfaults "rayParams (set)"     (createRay Nothing 1 >>= flip ($=) (1,1) . rayParams)
+
 
 testMass :: Spec
 testMass = do
@@ -131,15 +173,19 @@ testGeom = context "Geom.hs" do describe "" do it "" pending
 
 testJoint :: Spec
 testJoint = context "Joint.hs" do describe "" do it "" pending
-                        --Joint.attach c (Just b0) (Just b1)
-                        --Joint.jointDisable c
-                        --print =<< Joint.jointIsEnabled c
-
-testObjects :: Spec
-testObjects = context "Objects.hs" do describe "" do it "" pending
+--Joint.attach c (Just b0) (Just b1)
+--Joint.jointDisable c
+--print =<< Joint.jointIsEnabled c
 
 testRotation :: Spec
 testRotation = context "Rotation.hs" do describe "" do it "" pending
 
 testSpace :: Spec
 testSpace = context "Space.hs" do describe "" do it "" pending
+
+doesNotSegfaults :: String -> IO a -> Spec
+doesNotSegfaults fnName fn = do
+    describe fnName do 
+        it "does not segfaults" do
+            void fn `shouldReturn` ()
+
