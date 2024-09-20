@@ -5,7 +5,7 @@ cabal-version: 2.2
 -- see: https://github.com/sol/hpack
 
 name:           OpenDE
-version:        0.1.0.0
+version:        0.16.5
 homepage:       https://github.com/vitalibarozzi/OpenDE#readme
 bug-reports:    https://github.com/vitalibarozzi/OpenDE/issues
 author:         João Vítor Vitali Barozzi
