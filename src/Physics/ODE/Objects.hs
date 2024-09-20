@@ -1,5 +1,4 @@
-{-# LANGUAGE LambdaCase #-}
--- | 100% complete.
+{-# LANGUAGE LambdaCase #-} -- TODO remove it
 module Physics.ODE.Objects (
     boxLengths,
     boxPointDepth,

@@ -46,9 +46,11 @@ contactSurfaceLayer world = do
     set_ = c'setContactSurfaceLayerdWorldSetContactSurfaceLayer world
 
 -----------------------------------------------------------
+{-# INLINE setCFM #-}
 setCFM :: (MonadIO m) => World -> Float -> m ()
 setCFM w f = liftIO (c'worldSetCFM w f)
 
 -----------------------------------------------------------
+{-# INLINE getCFM #-}
 getCFM :: (MonadIO m) => World -> m Float
 getCFM = liftIO . c'worldGetCFM

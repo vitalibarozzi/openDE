@@ -1,165 +1,206 @@
-module Physics.ODE.Space where
+module Physics.ODE.Space
+    (
+      module Physics.ODE.Space
+    , module Physics.ODE.Raw.Space
+    )
+where
 
 import Data.Maybe
 import Foreign
 import Physics.ODE.Raw.Space
 import Physics.ODE.Raw.Types
+import Control.Monad.IO.Class
+
+-- TODO foreign import ccall unsafe "dQuadTreeSpaceCreate" {--------} c'dQuadTreeSpaceCreate {--}   :: Space -> Int -> IO Geom-- TODO is this type correct?
+-- TODO foreign import ccall unsafe "dSpaceSetSublevel" {-----------} c'dSpaceSetSublevel {-----}   :: Space -> Int -> IO ()
+-- TODO foreign import ccall unsafe "dSpaceGetSublevel" {-----------} c'dSpaceGetSublevel {-----}   :: Space -> IO Int
 
 -----------------------------------------------------------
-tryGetGeom :: Space -> Int -> IO (Maybe Geom)
-tryGetGeom space nth = do
-    num <- getNumGeoms space
-    if nth > num - 1
-        then return Nothing
-        else fmap Just (getGeomUnsafe space nth)
+{-# INLINE tryGetGeom #-}
+tryGetGeom :: (MonadIO m) => Space -> Int -> m (Maybe Geom)
+tryGetGeom space nth = 
+    liftIO $ do
+        num <- getNumGeoms space
+        if nth > num - 1
+            then return Nothing
+            else fmap Just (getGeomUnsafe space nth)
 
 -----------------------------------------------------------
-getGeom :: Space -> Int -> IO Geom
+{-# INLINE getGeom #-}
+getGeom :: (MonadIO m) => Space -> Int -> m Geom
 getGeom space nth =
-    fmap (fromMaybe (error msg)) (tryGetGeom space nth)
+    liftIO $ do
+        fmap (fromMaybe (error msg)) (tryGetGeom space nth)
   where
     msg =
         "Physics.ODE.Space.getGeom: Index ("
             ++ show nth
             ++ ") out of range."
+
 -----------------------------------------------------------
-createSimple :: Maybe Space -> IO Space
-createSimple arg_0 =
-    ( case arg_0 of
-        Data.Maybe.Just a_1 -> \action_2 -> action_2 a_1
-        Data.Maybe.Nothing -> \action_3 -> action_3 nullPtr
-    )
-        ( \marshaledArg_4 -> do
-            c'createSimpledSimpleSpaceCreate marshaledArg_4
-        )
+{-# INLINE createSimple #-}
+createSimple :: (MonadIO m) => Maybe Space -> m Space
+createSimple mspace =
+    liftIO $ do
+        case mspace of
+            Data.Maybe.Just a_1 -> undefined -- c'dCreateSimple a_1
+            Data.Maybe.Nothing -> undefined -- c'dCreateSimple nullPtr
+        
+
 -----------------------------------------------------------
-createHash :: Maybe Space -> IO Space
+{-# INLINE createHash #-}
+createHash :: (MonadIO m) => Maybe Space -> m Space
 createHash arg_0 =
-    ( case arg_0 of
-        Data.Maybe.Just a_1 -> \action_2 -> action_2 a_1
-        Data.Maybe.Nothing -> \action_3 -> action_3 nullPtr
-    )
-        ( \marshaledArg_4 -> do
-            c'createHashdHashSpaceCreate marshaledArg_4
-        )
+    liftIO $ do
+        case arg_0 of
+            Data.Maybe.Just a_1 -> undefined -- c'createHashdHashSpaceCreate a_1
+            Data.Maybe.Nothing -> undefined -- c'createHashdHashSpaceCreate nullPtr
+
 -----------------------------------------------------------
-destroySpace :: Space -> IO ()
+{-# INLINE destroySpace #-}
+destroySpace :: (MonadIO m) => Space -> m ()
 destroySpace arg_0 =
-    (\action_1 -> action_1 arg_0)
-        ( \marshaledArg_2 -> do
-            ret_3 <- c'destroySpacedSpaceDestroy marshaledArg_2
-            case () of
-                () -> return ()
-        )
+    liftIO $ do
+        (\action_1 -> action_1 arg_0)
+            ( \marshaledArg_2 -> do
+                ret_3 <- undefined -- c'destroySpacedSpaceDestroy marshaledArg_2
+                case () of
+                    () -> return ()
+            )
+
 -----------------------------------------------------------
-setLevels :: Space -> Int -> Int -> IO ()
+{-# INLINE setLevels #-}
+setLevels :: (MonadIO m) => Space -> Int -> Int -> m ()
 setLevels arg_0 arg_1 arg_2 =
-    (\action_3 -> action_3 arg_0)
-        ( \marshaledArg_4 ->
-            (\action_5 -> action_5 arg_1)
-                ( \marshaledArg_6 ->
-                    (\action_7 -> action_7 arg_2)
-                        ( \marshaledArg_8 -> do
-                            ret_9 <- c'setLevelsdHashSpaceSetLevels marshaledArg_4 marshaledArg_6 marshaledArg_8
-                            case () of
-                                () -> return ()
-                        )
-                )
-        )
------------------------------------------------------------
-getLevels :: Space -> IO (Int, Int)
+    liftIO $ do
+        (\action_3 -> action_3 arg_0)
+            ( \marshaledArg_4 ->
+                (\action_5 -> action_5 arg_1)
+                    ( \marshaledArg_6 ->
+                        (\action_7 -> action_7 arg_2)
+                            ( \marshaledArg_8 -> do
+                                ret_9 <- undefined -- c'setLevelsdHashSpaceSetLevels marshaledArg_4 marshaledArg_6 marshaledArg_8
+                                case () of
+                                    () -> return ()
+                            )
+                    )
+            )
+{-# INLINE getLevels #-}
+getLevels :: (MonadIO m) => Space -> m (Int, Int)
 getLevels arg_0 =
-    (\action_1 -> action_1 arg_0)
-        ( \marshaledArg_2 ->
-            alloca
-                ( \marshaledArg_3 ->
-                    alloca
-                        ( \marshaledArg_4 -> do
-                            ret_5 <- c'getLevelsdHashSpaceGetLevels marshaledArg_2 marshaledArg_3 marshaledArg_4
-                            case ( marshaledArg_3
-                                 , marshaledArg_4
-                                 ) of
-                                ( tuplePart_6
-                                    , tuplePart_7
-                                    ) -> do
-                                        returnVariable_8 <- peek tuplePart_6
-                                        returnVariable_10 <- peek tuplePart_7
-                                        return
-                                            ( returnVariable_8
-                                            , returnVariable_10
-                                            )
-                        )
-                )
-        )
+    liftIO $ do
+        (\action_1 -> action_1 arg_0)
+            ( \marshaledArg_2 ->
+                alloca
+                    ( \marshaledArg_3 ->
+                        alloca
+                            ( \marshaledArg_4 -> do
+                                ret_5 <- undefined -- c'getLevelsdHashSpaceGetLevels marshaledArg_2 marshaledArg_3 marshaledArg_4
+                                case ( marshaledArg_3
+                                     , marshaledArg_4
+                                     ) of
+                                    ( tuplePart_6
+                                        , tuplePart_7
+                                        ) -> do
+                                            returnVariable_8 <- peek tuplePart_6
+                                            returnVariable_10 <- peek tuplePart_7
+                                            return
+                                                ( returnVariable_8
+                                                , returnVariable_10
+                                                )
+                            )
+                    )
+            )
+
 -----------------------------------------------------------
-setCleanup :: Space -> Bool -> IO ()
+{-# INLINE setCleanup #-}
+setCleanup :: (MonadIO m) => Space -> Bool -> m ()
 setCleanup arg_0 arg_1 =
-    (\action_2 -> action_2 arg_0)
-        ( \marshaledArg_3 ->
-            (\action_4 -> action_4 (fromBool arg_1))
-                ( \marshaledArg_5 -> do
-                    ret_6 <- c'setCleanupdSpaceSetCleanup marshaledArg_3 marshaledArg_5
-                    case () of
-                        () -> return ()
-                )
-        )
------------------------------------------------------------
-getCleanup :: Space -> IO Bool
+    liftIO $ do
+        (\action_2 -> action_2 arg_0)
+            ( \marshaledArg_3 ->
+                undefined -- (\action_4 -> undefined) -- action_4 (fromBool arg_1))
+                    -- ( \marshaledArg_5 -> do
+                    --     ret_6 <- undefined -- c'setCleanupdSpaceSetCleanup marshaledArg_3 marshaledArg_5
+                     --    case () of
+                     --        () -> return ()
+                   --  )
+            )
+
+
+{-# INLINE getCleanup #-}
+getCleanup :: (MonadIO m) => Space -> m Bool
 getCleanup arg_0 =
-    (\action_1 -> action_1 arg_0)
-        ( \marshaledArg_2 -> do
-            ret_3 <- c'getCleanupdSpaceGetCleanup marshaledArg_2
-            return (toBool ret_3)
-        )
+    liftIO $ do
+        (\action_1 -> action_1 arg_0)
+            ( \marshaledArg_2 -> do
+                ret_3 <- undefined -- c'getCleanupdSpaceGetCleanup marshaledArg_2
+                undefined -- return (toBool ret_3)
+            )
+
 -----------------------------------------------------------
-add :: Space -> Geom -> IO ()
+{-# INLINE add #-}
+add :: (MonadIO m) => Space -> Geom -> m ()
 add arg_0 arg_1 =
-    (\action_2 -> action_2 arg_0)
-        ( \marshaledArg_3 ->
-            (\action_4 -> action_4 arg_1)
-                ( \marshaledArg_5 -> do
-                    ret_6 <- c'adddSpaceAdd marshaledArg_3 marshaledArg_5
-                    case () of
-                        () -> return ()
-                )
-        )
+    liftIO $ do
+        (\action_2 -> action_2 arg_0)
+            ( \marshaledArg_3 ->
+                (\action_4 -> action_4 arg_1)
+                    ( \marshaledArg_5 -> do
+                        ret_6 <- undefined -- c'adddSpaceAdd marshaledArg_3 marshaledArg_5
+                        case () of
+                            () -> return ()
+                    )
+            )
+
 -----------------------------------------------------------
-remove :: Space -> Geom -> IO ()
+{-# INLINE remove #-}
+remove :: (MonadIO m) => Space -> Geom -> m ()
 remove arg_0 arg_1 =
-    (\action_2 -> action_2 arg_0)
-        ( \marshaledArg_3 ->
-            (\action_4 -> action_4 arg_1)
-                ( \marshaledArg_5 -> do
-                    ret_6 <- c'removedSpaceRemove marshaledArg_3 marshaledArg_5
-                    case () of
-                        () -> return ()
-                )
-        )
+    liftIO $ do
+        (\action_2 -> action_2 arg_0)
+            ( \marshaledArg_3 ->
+                (\action_4 -> action_4 arg_1)
+                    ( \marshaledArg_5 -> do
+                        ret_6 <- undefined -- c'removedSpaceRemove marshaledArg_3 marshaledArg_5
+                        case () of
+                            () -> return ()
+                    )
+            )
+
 -----------------------------------------------------------
-query :: Space -> Geom -> IO Bool
+{-# INLINE query #-}
+query :: (MonadIO m) => Space -> Geom -> m Bool
 query arg_0 arg_1 =
-    (\action_2 -> action_2 arg_0)
-        ( \marshaledArg_3 ->
-            (\action_4 -> action_4 arg_1)
-                ( \marshaledArg_5 -> do
-                    ret_6 <- c'querydSpaceQuery marshaledArg_3 marshaledArg_5
-                    return (toBool ret_6)
-                )
-        )
+    liftIO $ do
+        (\action_2 -> action_2 arg_0)
+            ( \marshaledArg_3 ->
+                (\action_4 -> action_4 arg_1)
+                    ( \marshaledArg_5 -> do
+                        ret_6 <- undefined -- c'querydSpaceQuery marshaledArg_3 marshaledArg_5
+                        undefined -- return (toBool ret_6)
+                    )
+            )
+
 -----------------------------------------------------------
-getNumGeoms :: Space -> IO Int
+{-# INLINE getNumGeoms #-}
+getNumGeoms :: (MonadIO m) => Space -> m Int
 getNumGeoms arg_0 =
-    (\action_1 -> action_1 arg_0)
-        ( \marshaledArg_2 -> do
-            c'getNumGeomsdSpaceGetNumGeoms marshaledArg_2
-        )
+    liftIO $ do
+        (\action_1 -> action_1 arg_0)
+            ( \marshaledArg_2 -> do
+                undefined -- c'getNumGeomsdSpaceGetNumGeoms marshaledArg_2
+            )
+
 -----------------------------------------------------------
-getGeomUnsafe :: Space -> Int -> IO Geom
+{-# INLINE getGeomUnsafe #-}
+getGeomUnsafe :: (MonadIO m) => Space -> Int -> m Geom
 getGeomUnsafe arg_0 arg_1 =
-    (\action_2 -> action_2 arg_0)
-        ( \marshaledArg_3 ->
-            (\action_4 -> action_4 arg_1)
-                ( \marshaledArg_5 -> do
-                    c'getGeomUnsafedSpaceGetGeom marshaledArg_3 marshaledArg_5
-                )
-        )
+    liftIO $ do
+        (\action_2 -> action_2 arg_0)
+            ( \marshaledArg_3 ->
+                (\action_4 -> action_4 arg_1)
+                    ( \marshaledArg_5 -> do
+                        undefined -- c'getGeomUnsafedSpaceGetGeom marshaledArg_3 marshaledArg_5
+                    )
+            )

@@ -1,4 +1,3 @@
--- | 100% complete.
 module Physics.ODE.Raw.Objects
     ( c'dCreateBox
     , c'dCreateCapsule

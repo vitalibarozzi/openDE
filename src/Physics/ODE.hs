@@ -29,7 +29,7 @@ closeODE =
 -----------------------------------------------------------
 
 {- | Wrapper around initODE+closeODE with `bracket` and a
-convinience `World` created, although other worlds may be
+convenience `World` created, although other worlds may be
 created subsequently.
 -}
 withODE :: (MonadIO m) => (World.World -> IO ()) -> m ()
