@@ -30,6 +30,7 @@ library
       Physics.ODE.Objects
       Physics.ODE.Raw.Body
       Physics.ODE.Raw.Collision
+      Physics.ODE.Raw.Error
       Physics.ODE.Raw.Geom
       Physics.ODE.Raw.Hsc
       Physics.ODE.Raw.Joint

@@ -9,9 +9,16 @@ import Physics.ODE.Objects as Objects
 import Physics.ODE.Geom as Geom
 import Physics.ODE.Mass as Mass
 import Physics.ODE.Raw.Types
+import Physics.ODE.Error as Error
 import Data.StateVar
 import Test.Hspec
 import Control.Monad
+--import Control.Exception
+--import Foreign.C.String
+--import Foreign.C.Types
+--import Foreign.Ptr
+--import Foreign.Storable
+--import Unsafe.Coerce
 
 
 main :: IO ()
@@ -20,6 +27,7 @@ main = do
         () <- setup w
         hspec do
             testObjects
+            testError
             testMass
             testBody
             testCollision
@@ -89,6 +97,61 @@ testObjects = do
             doesNotSegfaults "rayParams (set)"     (createRay Nothing 1 >>= flip ($=) (1,1) . rayParams)
 
 
+--foreign import ccall unsafe "hs_exit"    hs_exit :: IO ()
+
+--fibonacci :: CInt -> CString -> Ptr () -> IO ()
+--fibonacci cn cstr x = do
+--    str <- peekCString cstr
+--    print (fromIntegral cn :: Int, str)
+--    f <- peek x 
+--    error . show $ (unsafeCoerce f :: Int)
+    
+
+--foreign export ccall                     fibonacci      :: MessageFunction
+--foreign import ccall unsafe "&fibonacci" fibonacci_fptr :: FunPtr MessageFunction
+
+testError :: Spec
+testError = do
+    context "Error.hs" do 
+
+        -- TODO dont know how to test this because we cant capture the error
+        --context "Error calling default" do
+        --    itThrows "errorODE"  (errorODE 1 "idkkkkkkkkkkkkkkkkkk")
+
+        -- TODO dont know how to test this because we cant capture the error
+        --context "Debug calling default" do
+        --    itThrows "debugODE"  (debugODE 0 "debug idkkkkkkkkkkkkkkkkkk")
+
+        context "Message calling default" do
+            doesNotSegfaults "messageODE" (messageODE 0 "Sent by messageODE function with the default handler.")
+
+        --context "Error handler" do
+            --doesNotSegfaults "get errorHandler"  (get errorHandler)
+            -- TODO dont know how to test this because we cant capture the error
+            --doesNotSegfaults "use errorHandler"  (get errorHandler >>= (\f -> f 0 "Sent by errorHandler"))
+            
+        --context "Debug handler" do
+            --doesNotSegfaults "get debugHandler"  (get debugHandler)
+            -- TODO dont know how to test this because we cant capture the error
+            --doesNotSegfaults "use debugHandler"  (get messageHandler >>= (\f -> f 0 "Sent by debugHandler"))
+
+        context "Message handler" do
+            --doesNotSegfaults "get messageHandler" (get messageHandler)
+            --doesNotSegfaults "use messageHandler" (get messageHandler >>= (\f -> f 0 "Sent by messageHandler"))
+           -- doesNotSegfaults "set"          (messageHandler $=! fibonacci_fptr >> messageODE 1 "worked")
+            doesNotSegfaults "messageODE" (messageODE 0 "Sent by messageODE function with the default handler.")
+
+        {-
+            doesNotSegfaults "set"          (pure ())
+            doesNotSegfaults "get"          (errorHandler $=! undefined >> get errorHandler)
+
+            doesNotSegfaults "set"          (pure ())
+            doesNotSegfaults "get"          (debugHandler $=! undefined >> get debugHandler)
+
+            doesNotSegfaults "set"          (pure ())
+            -}
+
+
 testMass :: Spec
 testMass = do
     context "Mass.hs" do
@@ -113,6 +176,7 @@ testMass = do
         runIO $ Mass.setZero m1
         v5 <- runIO $ get (Mass.mass m1)
         it "body mass can be set to 0" (v5 == 0.0)
+
 
 testCollision :: Spec
 testCollision = do
@@ -188,4 +252,10 @@ doesNotSegfaults fnName fn = do
     describe fnName do 
         it "does not segfaults" do
             void fn `shouldReturn` ()
+
+--itThrows :: String -> IO a -> Spec
+--itThrows fnName fn = do
+--    describe fnName do 
+--        it "it fails" do
+--            void fn `shouldThrow` (\(e :: SomeException) -> True)
 
