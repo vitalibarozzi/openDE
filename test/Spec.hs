@@ -13,12 +13,6 @@ import Physics.ODE.Error as Error
 import Data.StateVar
 import Test.Hspec
 import Control.Monad
---import Control.Exception
---import Foreign.C.String
---import Foreign.C.Types
---import Foreign.Ptr
---import Foreign.Storable
---import Unsafe.Coerce
 
 
 main :: IO ()
@@ -59,6 +53,7 @@ main = do
         y_ <- get (Body.position b1)
         print (x_,y_)
 
+
 testObjects :: Spec
 testObjects = do
     context "Objects.hs" do 
@@ -97,18 +92,12 @@ testObjects = do
             doesNotSegfaults "rayParams (set)"     (createRay Nothing 1 >>= flip ($=) (1,1) . rayParams)
 
 
---foreign import ccall unsafe "hs_exit"    hs_exit :: IO ()
+testSpace :: Spec
+testSpace = do
+    context "Space.hs" do 
+         describe "" do 
+              it "" pending -- TODO
 
---fibonacci :: CInt -> CString -> Ptr () -> IO ()
---fibonacci cn cstr x = do
---    str <- peekCString cstr
---    print (fromIntegral cn :: Int, str)
---    f <- peek x 
---    error . show $ (unsafeCoerce f :: Int)
-    
-
---foreign export ccall                     fibonacci      :: MessageFunction
---foreign import ccall unsafe "&fibonacci" fibonacci_fptr :: FunPtr MessageFunction
 
 testError :: Spec
 testError = do
@@ -244,8 +233,6 @@ testJoint = context "Joint.hs" do describe "" do it "" pending
 testRotation :: Spec
 testRotation = context "Rotation.hs" do describe "" do it "" pending
 
-testSpace :: Spec
-testSpace = context "Space.hs" do describe "" do it "" pending
 
 doesNotSegfaults :: String -> IO a -> Spec
 doesNotSegfaults fnName fn = do
@@ -259,3 +246,16 @@ doesNotSegfaults fnName fn = do
 --        it "it fails" do
 --            void fn `shouldThrow` (\(e :: SomeException) -> True)
 
+
+--foreign import ccall unsafe "hs_exit"    hs_exit :: IO ()
+
+--fibonacci :: CInt -> CString -> Ptr () -> IO ()
+--fibonacci cn cstr x = do
+--    str <- peekCString cstr
+--    print (fromIntegral cn :: Int, str)
+--    f <- peek x 
+--    error . show $ (unsafeCoerce f :: Int)
+    
+
+--foreign export ccall                     fibonacci      :: MessageFunction
+--foreign import ccall unsafe "&fibonacci" fibonacci_fptr :: FunPtr MessageFunction

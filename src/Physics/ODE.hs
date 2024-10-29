@@ -1,8 +1,8 @@
 -- | Execution.
 module Physics.ODE (
+    withODE,
     initODE,
     closeODE,
-    withODE,
     step,
     quickStep,
 )
@@ -14,11 +14,27 @@ import Physics.ODE.Raw.Types as World
 import Physics.ODE.Raw.World as World
 import Physics.ODE.World (create)
 
+
+-----------------------------------------------------------
+{- | Wrapper around initODE+closeODE with `bracket` and a
+convenience `World` created.
+-}
+withODE :: (MonadIO m) => (World.World -> IO ()) -> m ()
+{-# INLINEABLE withODE #-}
+withODE k =
+    liftIO
+        $ bracket
+            initODE
+            (\() -> closeODE)
+            (\() -> create >>= k)
+
+
 -----------------------------------------------------------
 initODE :: (MonadIO m) => m ()
 {-# INLINE initODE #-}
 initODE =
     liftIO World.c'initODE
+
 
 -----------------------------------------------------------
 closeODE :: (MonadIO m) => m ()
@@ -26,27 +42,13 @@ closeODE :: (MonadIO m) => m ()
 closeODE =
     liftIO World.c'closeODE
 
------------------------------------------------------------
-
-{- | Wrapper around initODE+closeODE with `bracket` and a
-convenience `World` created, although other worlds may be
-created subsequently.
--}
-withODE :: (MonadIO m) => (World.World -> IO ()) -> m ()
-{-# INLINEABLE withODE #-}
-withODE k =
-    liftIO
-        ( bracket
-            initODE
-            (\() -> closeODE)
-            (\() -> create >>= k)
-        )
 
 -----------------------------------------------------------
 step :: (MonadIO m) => World -> DeltaTime Float -> m ()
 {-# INLINE step #-}
 step w d =
     liftIO (c'stepdWorldStep w d)
+
 
 -----------------------------------------------------------
 quickStep :: (MonadIO m) => World -> DeltaTime Float -> m ()
